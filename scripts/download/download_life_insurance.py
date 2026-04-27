@@ -149,6 +149,14 @@ UNRELATED_REPORT_PATTERNS = (
     r"\bpolicy\s+wording\b",
     r"\bpolis\b",
     r"\bbancassurance\b",
+    r"\btenaga\s+pemasaran\b",
+    r"\bmarketing\b",
+    r"\bsales\b",
+    r"\bagent\b",
+    r"\bagen\b",
+    r"\bdaftar\s+tenaga\s+pemasaran\b",
+    r"\broster\b",
+    r"\bdirectory\b",
 )
 
 FUND_REPORT_PATTERNS = FUND_AND_INVESTMENT_PATTERNS + (
@@ -456,6 +464,8 @@ def is_relevant_financial_report(text: str, year: int, month: int) -> bool:
         return False
     if is_syariah_candidate(blob):
         return False
+    if _has_conflicting_month(blob, year, month):
+        return False
     period_kind = _period_kind(blob, year, month)
     strong_conventional = any(
         phrase in blob
@@ -498,6 +508,31 @@ def _quarter_match(blob: str, month: int) -> bool:
         if re.search(rf"\b{re.escape(start)}\b", blob) and re.search(rf"\b{re.escape(end)}\b", blob):
             return True
 
+    return False
+
+
+def _has_conflicting_month(blob: str, year: int, month: int) -> bool:
+    target_terms = {normalize_text(term) for term in normalize_month_terms(month)}
+    year_text = str(year)
+    for other_month, terms in MONTH_NAMES.items():
+        if other_month == month:
+            continue
+        other_month_text = str(other_month)
+        other_month_padded = f"{other_month:02d}"
+        if re.search(rf"\b{year_text}\s*[-_/\. ]\s*0?{other_month_text}\b", blob):
+            return True
+        if re.search(rf"\b0?{other_month_text}\s*[-_/\. ]\s*{year_text}\b", blob):
+            return True
+        if re.search(rf"\b{year_text}\s*[-_/\. ]\s*{other_month_padded}\b", blob):
+            return True
+        if re.search(rf"\b{other_month_padded}\s*[-_/\. ]\s*{year_text}\b", blob):
+            return True
+        for term in terms:
+            term_blob = normalize_text(term)
+            if not term_blob or term_blob in target_terms:
+                continue
+            if re.search(rf"(?<![a-z0-9]){re.escape(term_blob)}(?![a-z0-9])", blob):
+                return True
     return False
 
 
@@ -1428,6 +1463,11 @@ def crawl_related_pages(
             unique_candidates_for_page.append(candidate)
             combined_candidates.append(candidate)
 
+        page_has_exact_candidate = any(
+            is_relevant_financial_report(_candidate_core_blob(candidate), year, month)
+            and _period_kind(_candidate_core_blob(candidate), year, month) == "exact_month"
+            for candidate in unique_candidates_for_page
+        )
         page_record["static_candidates"] = len(static_candidates)
         page_record["candidate_count"] = len(unique_candidates_for_page)
         page_record["related_links"] = page_links
@@ -1439,7 +1479,7 @@ def crawl_related_pages(
         state["candidates"] = combined_candidates
         state["candidate_urls_seen"] = combined_seen
 
-        if depth < max_depth:
+        if depth < max_depth and not page_has_exact_candidate:
             follow_links = sorted(
                 page_links,
                 key=lambda item: (-int(item.get("score") or 0), clean_text(item.get("url", "")).lower()),

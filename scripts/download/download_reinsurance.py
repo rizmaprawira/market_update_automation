@@ -186,6 +186,7 @@ FOLLOW_LINK_HINTS = (
     "reinsurance",
 )
 BAD_FILENAME_TOKENS = {"download", "file", "report", "document", "pdf", "index"}
+MAX_LINKS_PER_PAGE = 40
 COMPANY_SLUG_ALIASES = {
     "pt indoperkasa suksesjaya reasuransi": "indoperkasa",
     "pt maskapai reasuransi indonesia tbk": "marein",
@@ -514,6 +515,9 @@ def build_candidate_analysis(candidate: dict[str, Any], year: int, month: int) -
     report_signal = bool(strong_report or weak_report or url_hint)
     syariah = is_syariah_candidate(blob)
     unrelated = bool(unrelated_report or is_unrelated_report(blob))
+    pdf_url_lower = normalize_text(candidate.get("pdf_url", "")).split("?")[0]
+    is_pdf_link = pdf_url_lower.endswith(".pdf")
+    is_image_link = bool(re.search(r"\.(png|jpg|jpeg|gif|webp)$", pdf_url_lower))
 
     period_group = "other"
     if target_year_present and (numeric_month_match or month_name_match):
@@ -554,6 +558,10 @@ def build_candidate_analysis(candidate: dict[str, Any], year: int, month: int) -
         score += 30
     if "publikasi laporan keuangan" in token_blob:
         score += 80
+    if is_pdf_link:
+        score += 150
+    if is_image_link:
+        score -= 400
 
     match_reasons: list[str] = []
     if numeric_month_match:
@@ -576,6 +584,10 @@ def build_candidate_analysis(candidate: dict[str, Any], year: int, month: int) -
         match_reasons.append("syariah term detected")
     if unrelated:
         match_reasons.append("unrelated report term detected")
+    if is_pdf_link:
+        match_reasons.append("pdf link")
+    if is_image_link:
+        match_reasons.append("image preview link")
 
     relevant = bool(
         target_year_present
@@ -861,6 +873,8 @@ def _extract_nested_html_links(
     seen: set[str] = set()
 
     for tag in soup.find_all(["a", "button", "summary", "div", "span", "li"]):
+        if len(nested) >= MAX_LINKS_PER_PAGE:
+            break
         href = clean_cell(tag.get("href") or tag.get("data-href") or tag.get("data-url") or "")
         if not href:
             continue
@@ -1770,13 +1784,14 @@ def process_company(row: dict[str, Any], args: argparse.Namespace) -> dict[str, 
         browser_candidates: list[dict[str, Any]] = []
         best_conventional = choose_best_candidate(candidates, args.year, args.month)
 
-        if args.use_browser or best_conventional is None:
+        if best_conventional is None and args.use_browser:
+            browser_max_depth = 0 if len(static_candidates) > 80 else args.max_depth
             browser_candidates = crawl_related_pages(
                 session,
                 source_page_url,
                 args.year,
                 args.month,
-                max_depth=args.max_depth,
+                max_depth=browser_max_depth,
                 use_browser=True,
                 debug_pages=debug_pages,
             )

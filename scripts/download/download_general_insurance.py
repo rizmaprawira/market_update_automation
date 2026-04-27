@@ -149,6 +149,8 @@ UNRELATED_TERMS = (
     "sustainability",
     "esg",
     "governance",
+    "gcg",
+    "rbc",
     "klaim",
     "claim form",
     "formulir",
@@ -335,6 +337,19 @@ def _contains_month_reference(text: str, year: int, month: int) -> bool:
     )
 
 
+def _contains_mismatched_month_reference(text: str, year: int, month: int) -> bool:
+    for other_month in range(1, 13):
+        if other_month == month:
+            continue
+        if _contains_exact_period(text, year, other_month):
+            return True
+        other_terms = normalize_month_terms(other_month)
+        other_words = [term for term in other_terms if not term.isdigit()]
+        if _contains_token(text, str(year)) and any(_contains_token(text, term) for term in other_words):
+            return True
+    return False
+
+
 def _quarter_month(month: int) -> bool:
     return month in {3, 6, 9, 12}
 
@@ -364,12 +379,10 @@ def _candidate_text(candidate: dict[str, Any]) -> str:
     parts = [
         candidate.get("anchor_text", ""),
         candidate.get("title", ""),
-        candidate.get("context_text", ""),
         candidate.get("button_text", ""),
         candidate.get("page_title", ""),
         candidate.get("pdf_url", ""),
         candidate.get("discovered_on_url", ""),
-        candidate.get("page_text", ""),
     ]
     return normalize_search_text(" ".join(str(part) for part in parts if part))
 
@@ -416,6 +429,8 @@ def is_relevant_financial_report(text: str, year: int, month: int) -> bool:
         return False
     if not _contains_token(normalized, str(year)) and not _contains_exact_period(normalized, year, month):
         return False
+    if _contains_mismatched_month_reference(normalized, year, month):
+        return False
 
     if _contains_exact_period(normalized, year, month):
         return True
@@ -432,9 +447,7 @@ def is_relevant_financial_report(text: str, year: int, month: int) -> bool:
         if _contains_any(normalized, REPORT_POSITIVE_PHRASES) or _contains_any(normalized, CONVENTIONAL_TERMS):
             return True
 
-    if _contains_any(normalized, CONVENTIONAL_TERMS) and (
-        _contains_month_reference(normalized, year, month) or _contains_token(normalized, str(year))
-    ):
+    if _contains_any(normalized, CONVENTIONAL_TERMS) and _contains_month_reference(normalized, year, month):
         return True
 
     if _contains_any(normalized, ("published report", "publikasi")) and _contains_month_reference(normalized, year, month):

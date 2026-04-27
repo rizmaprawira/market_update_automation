@@ -76,6 +76,46 @@ python scripts/download/download_life_insurance.py \
 The script also resolves the workbook from `assets/` when you pass only the file name. Add `--dry-run`
 to preview matches and `--use-browser` when the target site requires Playwright to reveal PDF links.
 
+## Reinsurance Download
+
+Download conventional reinsurance financial report PDFs from the official report-page workbook:
+
+```bash
+XDG_CACHE_HOME=/tmp mamba run -n market_update python scripts/download/download_reinsurance.py \
+  --year 2026 \
+  --month 3 \
+  --input input/link_reasuransi.xlsx \
+  --output-root data \
+  --use-browser \
+  --debug-html
+```
+
+For a future month, change only `--year` and `--month`. For example, April 2026 becomes:
+
+```bash
+XDG_CACHE_HOME=/tmp mamba run -n market_update python scripts/download/download_reinsurance.py \
+  --year 2026 \
+  --month 4 \
+  --input input/link_reasuransi.xlsx \
+  --output-root data \
+  --use-browser \
+  --debug-html
+```
+
+Useful flags:
+
+- `--discover-only` writes the manifest without downloading PDFs.
+- `--dry-run` is an alias for discovery-only style runs.
+- `--force` overwrites existing PDFs.
+- `--max-depth 2` controls same-domain crawling depth.
+- `--debug-html` saves fetched/rendered HTML under `data/{YYYY}-{MM}/raw_pdf/reasuransi/_debug_html/`.
+
+Outputs are written to:
+
+- `data/{YYYY}-{MM}/raw_pdf/reasuransi/{safe_company_name}/`
+- `data/{YYYY}-{MM}/raw_pdf/reasuransi/download_manifest.csv`
+- `data/{YYYY}-{MM}/raw_pdf/reasuransi/download_manifest.json`
+
 ## Configuration
 
 | File | Purpose |

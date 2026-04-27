@@ -6,6 +6,7 @@ from scripts.download.download_general_insurance import (
     choose_best_candidate,
     download_pdf,
     extract_pdf_candidates,
+    is_unrelated_report,
     is_relevant_financial_report,
     is_syariah_candidate,
     normalize_month_terms,
@@ -67,6 +68,10 @@ def test_syariah_detection_and_relevance() -> None:
     assert is_syariah_candidate("Sharia Financial Statement")
     assert is_relevant_financial_report("Laporan Keuangan Konvensional April 2026", 2026, 4)
     assert not is_relevant_financial_report("Laporan Keuangan Syariah April 2026", 2026, 4)
+    assert not is_relevant_financial_report("Laporan Keuangan Februari 2026", 2026, 3)
+    assert not is_relevant_financial_report("Laporan Keuangan Konvensional 2026", 2026, 3)
+    assert not is_relevant_financial_report("Performa-Asuransi-Astra-2025.pdf", 2026, 3)
+    assert is_unrelated_report("GCG.pdf")
 
 
 def test_extract_and_choose_candidate_with_recursive_html() -> None:
