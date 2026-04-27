@@ -1,0 +1,17 @@
+# Canonical path templates.
+# Use Python str.format(period=..., segment=..., company=...) to resolve.
+
+base_data: "data/{period}"
+
+raw_pdf:        "data/{period}/raw_pdf/{segment}"
+converted_excel: "data/{period}/converted_excel/{segment}"
+extracted_table: "data/{period}/extracted_table"
+clean_json:      "data/{period}/clean_json"
+quality_checks:  "data/{period}/quality_checks"
+
+runs_charts:    "runs/{period}/charts/{segment}"
+runs_narration: "runs/{period}/narration"
+runs_prompts:   "runs/{period}/prompts_used"
+
+reports:        "reports/{period}"
+logs:           "logs/{period}"

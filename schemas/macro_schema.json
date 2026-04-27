@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MacroeconomicData",
+  "type": "object",
+  "required": ["period", "indicators"],
+  "properties": {
+    "period": { "type": "string", "pattern": "^\\d{4}-\\d{2}$" },
+    "indicators": {
+      "type": "object",
+      "properties": {
+        "gdp_growth_pct":      { "type": ["number", "null"] },
+        "inflation_pct":       { "type": ["number", "null"] },
+        "bi_rate_pct":         { "type": ["number", "null"] },
+        "idr_usd":             { "type": ["number", "null"] },
+        "jci_index":           { "type": ["number", "null"] },
+        "current_account_gdp": { "type": ["number", "null"] }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "notes": { "type": "string" }
+  }
+}

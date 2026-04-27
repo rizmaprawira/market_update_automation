@@ -1,0 +1,60 @@
+# Maps raw column names found in source Excel/PDF tables to canonical KPI keys.
+# Used by extractors to normalise across companies and periods.
+
+reinsurance:
+  gross_premium_written:
+    aliases: ["Premi Bruto", "Gross Premium Written", "GPW"]
+    unit: IDR_billion
+    dtype: float
+
+  net_premium_written:
+    aliases: ["Premi Neto", "Net Premium Written", "NPW"]
+    unit: IDR_billion
+    dtype: float
+
+  loss_ratio:
+    aliases: ["Rasio Klaim", "Loss Ratio", "LR"]
+    unit: percent
+    dtype: float
+
+  combined_ratio:
+    aliases: ["Combined Ratio", "CR"]
+    unit: percent
+    dtype: float
+
+  investment_income:
+    aliases: ["Pendapatan Investasi", "Investment Income"]
+    unit: IDR_billion
+    dtype: float
+
+  total_assets:
+    aliases: ["Total Aset", "Total Assets"]
+    unit: IDR_billion
+    dtype: float
+
+  equity:
+    aliases: ["Ekuitas", "Equity", "Total Equity"]
+    unit: IDR_billion
+    dtype: float
+
+general_insurance:
+  gross_premium_written:
+    aliases: ["Premi Bruto", "GPW"]
+    unit: IDR_billion
+    dtype: float
+
+  loss_ratio:
+    aliases: ["Rasio Klaim", "Loss Ratio"]
+    unit: percent
+    dtype: float
+
+life_insurance:
+  gross_premium:
+    aliases: ["Premi Bruto", "Total Premium"]
+    unit: IDR_billion
+    dtype: float
+
+  benefit_ratio:
+    aliases: ["Rasio Manfaat", "Benefit Ratio"]
+    unit: percent
+    dtype: float

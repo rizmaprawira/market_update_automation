@@ -1,0 +1,17 @@
+# Reporting period configuration.
+# current_period drives the active data/ and runs/ sub-folder.
+
+current_period: "2026-04"
+
+periods:
+  - id: "2026-04"
+    label: "April 2026"
+    report_date: "2026-04-30"
+    prior_period: "2026-01"      # YoY or QoQ reference
+    yoy_period: "2025-04"
+
+  - id: "2026-01"
+    label: "January 2026"
+    report_date: "2026-01-31"
+    prior_period: "2025-10"
+    yoy_period: "2025-01"

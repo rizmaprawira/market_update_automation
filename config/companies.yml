@@ -1,0 +1,40 @@
+# Registry of companies tracked per segment.
+# Each entry drives the downloader, converter, and extractor selection.
+
+reinsurance:
+  - id: indore
+    name: Indonesia Re
+    short_name: IndoRe
+    source_url: ""          # fill in
+    report_format: pdf
+    converter: convert_indore
+
+  - id: maipark
+    name: Maipark
+    short_name: Maipark
+    source_url: ""
+    report_format: pdf
+    converter: convert_maipark
+
+  - id: nasre
+    name: Nas Re
+    short_name: NasRe
+    source_url: ""
+    report_format: pdf
+    converter: convert_nasre
+
+general_insurance:
+  - id: company_x
+    name: Company X
+    short_name: CompX
+    source_url: ""
+    report_format: pdf
+    converter: convert_company_x
+
+life_insurance:
+  - id: company_y
+    name: Company Y
+    short_name: CompY
+    source_url: ""
+    report_format: pdf
+    converter: convert_company_y

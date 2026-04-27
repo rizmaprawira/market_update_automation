@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CompanyRegistry",
+  "type": "object",
+  "required": ["segment", "companies"],
+  "properties": {
+    "segment": {
+      "type": "string",
+      "enum": ["reinsurance", "general_insurance", "life_insurance"]
+    },
+    "companies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "converter"],
+        "properties": {
+          "id":           { "type": "string" },
+          "name":         { "type": "string" },
+          "short_name":   { "type": "string" },
+          "source_url":   { "type": "string" },
+          "report_format":{ "type": "string", "enum": ["pdf", "xlsx"] },
+          "converter":    { "type": "string" }
+        }
+      }
+    }
+  }
+}

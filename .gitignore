@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+
+# Data — raw and intermediate files are not committed
+data/*/raw_pdf/
+data/*/converted_excel/
+data/*/extracted_table/*.xlsx
+data/*/clean_json/*.json
+data/*/quality_checks/error_log.txt
+data/**/*.pdf
+data/**/*.xlsx
+data/**/*.csv
+z_archive/
+
+# Run outputs
+runs/*/charts/
+runs/*/narration/
+runs/**/*.pdf
+runs/**/*.xlsx
+runs/**/*.csv
+reports/*/final_market_update.pdf
+reports/*/final_market_update.docx
+reports/**/*.pdf
+reports/**/*.xlsx
+reports/**/*.csv
+reports/**/*.docx
+z_archive/
+
+# Logs
+logs/
+
+# Secrets / env
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# Jupyter
+.ipynb_checkpoints/
