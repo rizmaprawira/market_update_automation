@@ -1,6 +1,6 @@
 # Indonesia Re — Market Update Pipeline
 
-Automated pipeline that downloads, converts, extracts, analyses, and reports on the Indonesian insurance and reinsurance market every quarter.
+Automated quarterly pipeline for downloading, processing, analyzing, and reporting on the Indonesian insurance and reinsurance market.
 
 ## Repository Layout
 
@@ -44,6 +44,37 @@ python scripts/charts/generate_all_charts.py
 python scripts/report/build_report_docx.py
 python scripts/report/export_pdf.py
 ```
+
+## General Insurance Download
+
+Download conventional financial report PDFs for the general insurance list in `link_asuransi_umum.xlsx`:
+
+```bash
+python scripts/download/download_general_insurance.py \
+  --year 2026 \
+  --month 4 \
+  --input assets/link_asuransi_umum.xlsx \
+  --output-root data \
+  --max-workers 4
+```
+
+For pages that only render links in JavaScript, add `--use-browser`. Use `--dry-run` to inspect the selected target paths without writing PDFs.
+
+## Life Insurance Download
+
+Download conventional financial report PDFs for the life insurance list in `link_asuransi_jiwa.xlsx`:
+
+```bash
+python scripts/download/download_life_insurance.py \
+  --year 2026 \
+  --month 4 \
+  --input link_asuransi_jiwa.xlsx \
+  --output-root data \
+  --max-workers 4
+```
+
+The script also resolves the workbook from `assets/` when you pass only the file name. Add `--dry-run`
+to preview matches and `--use-browser` when the target site requires Playwright to reveal PDF links.
 
 ## Configuration
 
