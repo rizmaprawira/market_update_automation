@@ -1,0 +1,21 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "aia",
+    "company_name": "PT AIA Financial",
+    "source_page_url": "https://www.aia-financial.co.id/id/about-aia/laporan-penting/report-financial",
+    "discovered_page_url": "https://www.aia-financial.co.id/id/about-aia/laporan-penting/report-financial",
+    "pdf_url": "https://www.aia-financial.co.id/content/dam/id-wise/id/pdf/about-aia/laporan-penting/report-financial/2026/Laporan%20Keuangan%20Konvensional%20Januari%202026.pdf.coredownload.inline.pdf",
+    "target_year": 2026,
+    "target_month": 1,
+    "output_path": "data/2026-01/raw_pdf/asuransi_jiwa/aia/aia_2026-01.pdf",
+    "status": "downloaded",
+    "reason": "downloaded",
+    "discovery_method": "playwright",
+    "score": 90,
+    "candidate_count": 2,
+    "http_status": 200,
+    "file_size_bytes": 166239,
+    "timestamp": "2026-04-28T11:56:02+07:00"
+  }
+]
