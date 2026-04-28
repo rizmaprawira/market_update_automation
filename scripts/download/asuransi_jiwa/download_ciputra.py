@@ -42,23 +42,34 @@ def main():
     debug_dir = output_dir / "_debug_html"
     
     LOGGER.info(f"Fetching from {SOURCE_URL}")
-    
+
+    html = None
+    discovered_url = None
+
     try:
         if args.use_browser:
             LOGGER.info("Using Playwright browser rendering")
             html, discovered_url = fetch_html_browser(SOURCE_URL, args.timeout)
         else:
-            html, discovered_url = fetch_html_static(session, SOURCE_URL, args.timeout)
+            try:
+                html, discovered_url = fetch_html_static(session, SOURCE_URL, args.timeout)
+                candidates = extract_pdf_links(html, discovered_url, args.year, args.month)
+                if not candidates:
+                    LOGGER.info("No PDFs found in static HTML, falling back to Playwright browser rendering")
+                    html, discovered_url = fetch_html_browser(SOURCE_URL, args.timeout)
+            except Exception as static_error:
+                LOGGER.info("Static fetch failed, falling back to Playwright browser rendering")
+                html, discovered_url = fetch_html_browser(SOURCE_URL, args.timeout)
     except Exception as e:
         reason = f"failed to fetch: {e}"
         LOGGER.error(reason)
         if args.debug_html:
             write_debug_html(debug_dir, "", reason)
         return 1
-    
+
     candidates = extract_pdf_links(html, discovered_url, args.year, args.month)
     LOGGER.info(f"Found {len(candidates)} PDF candidates for {period}")
-    
+
     if not candidates:
         reason = f"no PDFs found for {period}"
         LOGGER.error(reason)
