@@ -5,8 +5,8 @@ import sys
 from pathlib import Path
 
 from _downloader_base import (
-    build_session, extract_pdf_links, download_pdf, write_manifest, write_debug_html,
-    fetch_html_static, fetch_html_browser, current_timestamp
+    build_session, discover_download_candidate, download_pdf, write_manifest, write_debug_html,
+    fetch_html_static, fetch_html_browser_report, current_timestamp
 )
 
 LOGGER = logging.getLogger("download_axa_mandiri_financial_services")
@@ -43,7 +43,7 @@ def main():
     try:
         if args.use_browser:
             LOGGER.info("Using Playwright browser rendering")
-            html, discovered_url = fetch_html_browser(SOURCE_URL, args.timeout)
+            html, discovered_url = fetch_html_browser_report(SOURCE_URL, args.timeout, args.year, args.month)
         else:
             html, discovered_url = fetch_html_static(session, SOURCE_URL, args.timeout)
     except Exception as e:
@@ -53,18 +53,16 @@ def main():
             write_debug_html(debug_dir, "", reason)
         return 1
     
-    candidates = extract_pdf_links(html, discovered_url, args.year, args.month)
-    LOGGER.info(f"Found {len(candidates)} PDF candidates for {period}")
-    
-    if not candidates:
+    try:
+        best = discover_download_candidate(session, html, discovered_url, args.year, args.month, timeout=args.timeout)
+        LOGGER.info(f"Selected: {best.text}")
+        LOGGER.info(f"URL: {best.url}")
+    except Exception as e:
         reason = f"no PDFs found for {period}"
-        LOGGER.error(reason)
+        LOGGER.error(f"{reason}: {e}")
         if args.debug_html:
             write_debug_html(debug_dir, html, reason)
         return 1
-    
-    best = candidates[0]
-    LOGGER.info(f"Selected: {best.text}")
     
     if args.dry_run:
         LOGGER.info("Dry-run complete - no download")
@@ -74,7 +72,7 @@ def main():
             "pdf_url": best.url, "target_year": args.year, "target_month": args.month,
             "output_path": str(output_pdf), "status": "dry_run",
             "reason": "dry-run requested", "discovery_method": "playwright" if args.use_browser else "static_html",
-            "score": best.score, "candidate_count": len(candidates),
+            "score": best.score, "candidate_count": 1,
             "http_status": None, "file_size_bytes": None, "timestamp": current_timestamp()
         }])
         return 0
@@ -90,7 +88,7 @@ def main():
             "output_path": str(output_pdf), "status": "downloaded" if status else "skipped_exists",
             "reason": "downloaded" if status else "existing file kept",
             "discovery_method": "playwright" if args.use_browser else "static_html",
-            "score": best.score, "candidate_count": len(candidates),
+            "score": best.score, "candidate_count": 1,
             "http_status": status, "file_size_bytes": size, "timestamp": current_timestamp()
         }])
         return 0

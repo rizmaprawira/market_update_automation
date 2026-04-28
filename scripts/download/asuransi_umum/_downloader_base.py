@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote, urljoin, urlparse
+from urllib.parse import urljoin, urlparse
 from zoneinfo import ZoneInfo
 
 import requests
@@ -167,14 +167,10 @@ def extract_report_links(html, base_url, year, month):
     soup = BeautifulSoup(html, "html.parser")
     candidates = []
     keywords = ("laporan", "keuangan", "report", "unduh", "download", "cari laporan")
-    parsed_base = urlparse(base_url)
-    download_origin = f"{parsed_base.scheme}://{parsed_base.netloc}"
     for link in soup.find_all("a"):
         href = link.get("href", "").strip()
-        data_folder = link.get("data-folder", "").strip()
         if not href or href.startswith("javascript:") or href.startswith("#"):
-            if not data_folder:
-                continue
+            continue
         text = link.get_text(" ", strip=True)
         parent_text = ""
         if link.parent:
@@ -182,16 +178,13 @@ def extract_report_links(html, base_url, year, month):
         grandparent_text = ""
         if link.parent and link.parent.parent:
             grandparent_text = link.parent.parent.get_text(" ", strip=True)
-        blob = " ".join(part for part in [text, parent_text, grandparent_text, href, data_folder] if part)
+        blob = " ".join(part for part in [text, parent_text, grandparent_text, href] if part)
         if not matches_target_period(blob, year, month):
             continue
         normalized = normalize_text(blob)
         if not any(keyword in normalized for keyword in keywords):
             continue
-        if data_folder:
-            url = f"{download_origin}/admin/bli/apt/myfile/download_file_s3/{quote(data_folder, safe='/')}"
-        else:
-            url = urljoin(base_url, href)
+        url = urljoin(base_url, href)
         score = score_candidate(blob, year, month) + 5
         if is_probable_pdf_url(url):
             score += 25
@@ -225,7 +218,6 @@ def _select_report_filters(page, year, month):
             try:
                 select.select_option(label=str(year))
                 selected_year = True
-                page.wait_for_timeout(250)
                 continue
             except Exception:
                 pass
@@ -234,48 +226,9 @@ def _select_report_filters(page, year, month):
             for label in ("Konvensional", "Syariah", "Tahunan"):
                 try:
                     select.select_option(label=label)
-                    page.wait_for_timeout(250)
                     break
                 except Exception:
                     continue
-
-    for label in ("Laporan Keuangan", "Laporan Kinerja Bulanan", "Laporan Tahunan"):
-        for role in ("tab", "button", "link"):
-            try:
-                page.get_by_role(role, name=re.compile(label, re.I)).first.click(timeout=1000)
-                page.wait_for_timeout(400)
-                break
-            except Exception:
-                try:
-                    page.get_by_text(label, exact=False).first.click(timeout=1000)
-                    page.wait_for_timeout(400)
-                    break
-                except Exception:
-                    continue
-
-
-def _stabilize_browser_page(page, timeout):
-    page.wait_for_timeout(min(1500, max(500, timeout * 20)))
-    for _ in range(2):
-        try:
-            page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-            page.wait_for_timeout(400)
-            page.evaluate("window.scrollTo(0, 0)")
-            page.wait_for_timeout(250)
-        except Exception:
-            break
-
-
-def _goto_with_fallback(page, url, timeout):
-    last_error = None
-    for wait_until in ("domcontentloaded", "commit"):
-        try:
-            page.goto(url, wait_until=wait_until, timeout=timeout * 1000)
-            return
-        except PlaywrightTimeoutError as e:
-            last_error = e
-            continue
-    raise PlaywrightTimeoutError(str(last_error) if last_error else "page load timed out")
 
 
 def fetch_html_browser_report(url, timeout, year, month):
@@ -286,18 +239,15 @@ def fetch_html_browser_report(url, timeout, year, month):
         browser = playwright.chromium.launch(headless=True)
         page = browser.new_page(user_agent=HEADERS["User-Agent"], viewport={"width": 1440, "height": 2200})
         try:
-            _goto_with_fallback(page, url, timeout)
-            _stabilize_browser_page(page, timeout)
+            page.goto(url, wait_until="networkidle", timeout=timeout * 1000)
+            page.wait_for_timeout(750)
             _select_report_filters(page, year, month)
             try:
-                page.get_by_role("button", name=re.compile(r"cari laporan", re.I)).first.click(timeout=1500)
-                _stabilize_browser_page(page, timeout)
+                page.get_by_role("button", name=re.compile(r"cari laporan", re.I)).first.click()
+                page.wait_for_load_state("networkidle", timeout=timeout * 1000)
+                page.wait_for_timeout(750)
             except Exception:
-                try:
-                    page.get_by_text(re.compile(r"cari laporan", re.I), exact=False).first.click(timeout=1500)
-                    _stabilize_browser_page(page, timeout)
-                except Exception:
-                    pass
+                pass
             html = page.content()
             final_url = page.url
             return html, final_url
@@ -360,8 +310,8 @@ def fetch_html_browser(url, timeout):
         browser = playwright.chromium.launch(headless=True)
         page = browser.new_page(user_agent=HEADERS["User-Agent"], viewport={"width": 1440, "height": 2200})
         try:
-            _goto_with_fallback(page, url, timeout)
-            _stabilize_browser_page(page, timeout)
+            page.goto(url, wait_until="networkidle", timeout=timeout * 1000)
+            page.wait_for_timeout(500)
             html = page.content()
             final_url = page.url
             return html, final_url
