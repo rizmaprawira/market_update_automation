@@ -126,3 +126,4 @@ result = subprocess.run([
 5. ⏳ Research alternative sources for 26 no-PDF companies
 6. ⏳ Investigate timeout issues for 2 companies
 7. ⏳ Integrate into main data pipeline
+

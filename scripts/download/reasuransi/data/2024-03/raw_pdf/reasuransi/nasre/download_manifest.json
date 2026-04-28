@@ -1,0 +1,15 @@
+[
+  {
+    "category": "reasuransi",
+    "company_name": "PT Reasuransi Nasional Indonesia",
+    "source_page_url": "https://nasionalre.id/laporan-tahunan",
+    "target_year": 2024,
+    "target_month": 3,
+    "pdf_url": "https://nasionalre.id/galeri_laporan_tahunan/20240417183455.pdf",
+    "output_path": "data/2024-03/raw_pdf/reasuransi/nasre/nasre_2024_03.pdf",
+    "status": "downloaded",
+    "reason": null,
+    "file_size_bytes": 234114,
+    "timestamp": "2026-04-28T10:46:56.302309+07:00"
+  }
+]

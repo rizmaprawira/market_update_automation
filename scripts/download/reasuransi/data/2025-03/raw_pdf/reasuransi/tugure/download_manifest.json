@@ -1,0 +1,23 @@
+[
+  {
+    "category": "reasuransi",
+    "company_id": "tugure",
+    "company_name": "PT Tugu Reasuransi Indonesia",
+    "source_page_url": "https://www.tugure.id/id/financial/monthly",
+    "discovered_page_url": "https://www.tugure.id/id/financial/monthly",
+    "pdf_url": "https://www.tugure.id/uploads/laporan-keuangan-bukan-konsolidasi-bulan-maret-2025post_file-2025-04-23-140546.pdf",
+    "target_year": 2025,
+    "target_month": 3,
+    "output_path": "data/2025-03/raw_pdf/reasuransi/tugure/tugure_2025-03.pdf",
+    "status": "downloaded",
+    "reason": "downloaded conventional financial report PDF",
+    "discovery_method": "static_html",
+    "score": 60,
+    "candidate_count": 3,
+    "rejected_syariah_count": 0,
+    "rejected_unrelated_count": 0,
+    "http_status": 200,
+    "file_size_bytes": 133370,
+    "timestamp": "2026-04-28T11:09:18+07:00"
+  }
+]

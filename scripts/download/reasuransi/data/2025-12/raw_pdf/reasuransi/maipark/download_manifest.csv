@@ -1,0 +1,2 @@
+category,company_name,source_page_url,target_year,target_month,pdf_url,output_path,status,reason,file_size_bytes,timestamp
+reasuransi,PT Reasuransi MAIPARK Indonesia,https://maipark.com/id/corporate/laporan?financePage=1&yearlyPage=1&type=financial,2025,12,https://web-api.maipark.com/file-management/open/report/1768380206/12. LK Website Desember 2025.pdf,data/2025-12/raw_pdf/reasuransi/maipark/maipark_2025_12.pdf,downloaded,,627964,2026-04-28T10:33:28.948525+07:00

@@ -1,0 +1,23 @@
+[
+  {
+    "category": "reasuransi",
+    "company_id": "inare",
+    "company_name": "PT Indoperkasa Suksesjaya Reasuransi",
+    "source_page_url": "https://inare.co.id/en/report/",
+    "discovered_page_url": "https://inare.co.id/en/report/",
+    "pdf_url": "https://inare.co.id/wp-content/uploads/2026/04/3.-LAPORAN-KEUANGAN-BULANAN-MARET-2026.pdf",
+    "target_year": 2026,
+    "target_month": 3,
+    "output_path": "data/2026-03/raw_pdf/reasuransi/inare/inare_2026-03.pdf",
+    "status": "downloaded",
+    "reason": "downloaded conventional financial report PDF",
+    "discovery_method": "static_html",
+    "score": 85,
+    "candidate_count": 4,
+    "rejected_syariah_count": 0,
+    "rejected_unrelated_count": 0,
+    "http_status": 200,
+    "file_size_bytes": 354138,
+    "timestamp": "2026-04-28T10:46:13+07:00"
+  }
+]

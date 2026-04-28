@@ -1,0 +1,23 @@
+[
+  {
+    "category": "reasuransi",
+    "company_id": "indonesiare",
+    "company_name": "PT Reasuransi Indonesia Utama Persero",
+    "source_page_url": "https://www.indonesiare.co.id/id/investor-relations/financial-report",
+    "discovered_page_url": "https://www.indonesiare.co.id/id/investor-relations/financial-report",
+    "pdf_url": "https://www.indonesiare.co.id/uploads/2026/03/96b84015712bb3773363c5d7f676db48_a013aa98851aaf992557524b683decb8.pdf",
+    "target_year": 2026,
+    "target_month": 3,
+    "output_path": "data/2026-03/raw_pdf/reasuransi/indonesiare/indonesiare_2026-03.pdf",
+    "status": "downloaded",
+    "reason": "downloaded conventional financial report PDF",
+    "discovery_method": "static_html",
+    "score": 85,
+    "candidate_count": 1,
+    "rejected_syariah_count": 0,
+    "rejected_unrelated_count": 0,
+    "http_status": 200,
+    "file_size_bytes": 536122,
+    "timestamp": "2026-04-28T11:00:40+07:00"
+  }
+]

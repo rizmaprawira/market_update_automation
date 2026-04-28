@@ -35,7 +35,7 @@ from collections import deque
 from datetime import datetime
 from pathlib import Path
 from typing import Any
-from urllib.parse import urljoin, urlparse
+from urllib.parse import unquote, urljoin, urlparse
 
 import pandas as pd
 import requests
@@ -350,6 +350,13 @@ def _contains_mismatched_month_reference(text: str, year: int, month: int) -> bo
     return False
 
 
+def _contains_other_year_reference(text: str, year: int) -> bool:
+    for match in re.finditer(r"\b(19|20)\d{2}\b", text):
+        if int(match.group(0)) != year:
+            return True
+    return False
+
+
 def _quarter_month(month: int) -> bool:
     return month in {3, 6, 9, 12}
 
@@ -376,13 +383,16 @@ def _quarter_terms(month: int) -> tuple[str, ...]:
 
 
 def _candidate_text(candidate: dict[str, Any]) -> str:
+    pdf_url = clean_text(candidate.get("pdf_url", ""))
+    pdf_name = ""
+    if pdf_url:
+        pdf_name = unquote(Path(urlparse(pdf_url).path).name)
     parts = [
         candidate.get("anchor_text", ""),
         candidate.get("title", ""),
         candidate.get("button_text", ""),
         candidate.get("page_title", ""),
-        candidate.get("pdf_url", ""),
-        candidate.get("discovered_on_url", ""),
+        pdf_name,
     ]
     return normalize_search_text(" ".join(str(part) for part in parts if part))
 
@@ -426,6 +436,8 @@ def is_unrelated_report(text: str) -> bool:
 def is_relevant_financial_report(text: str, year: int, month: int) -> bool:
     normalized = normalize_search_text(text)
     if not normalized or is_syariah_candidate(normalized):
+        return False
+    if _contains_other_year_reference(normalized, year):
         return False
     if not _contains_token(normalized, str(year)) and not _contains_exact_period(normalized, year, month):
         return False

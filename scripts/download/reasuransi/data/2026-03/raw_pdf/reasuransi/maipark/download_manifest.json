@@ -1,0 +1,15 @@
+[
+  {
+    "category": "reasuransi",
+    "company_name": "PT Reasuransi MAIPARK Indonesia",
+    "source_page_url": "https://maipark.com/id/corporate/laporan?financePage=1&yearlyPage=1&type=financial",
+    "target_year": 2026,
+    "target_month": 3,
+    "pdf_url": "https://web-api.maipark.com/file-management/open/report/1776255383/03. LK Website 31 Maret 2026.pdf",
+    "output_path": "data/2026-03/raw_pdf/reasuransi/maipark/maipark_2026_03.pdf",
+    "status": "downloaded",
+    "reason": null,
+    "file_size_bytes": 655210,
+    "timestamp": "2026-04-28T10:32:44.904961+07:00"
+  }
+]
