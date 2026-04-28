@@ -226,6 +226,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Use Playwright to render the page when static HTML is insufficient.",
     )
+    parser.add_argument(
+        "--timeout",
+        type=positive_int,
+        default=30,
+        help="HTTP request timeout in seconds.",
+    )
     return parser.parse_args(argv)
 
 
@@ -756,7 +762,7 @@ def main(argv: list[str] | None = None) -> int:
             args.year,
             args.month,
             use_browser=args.use_browser,
-            timeout=DEFAULT_TIMEOUT,
+            timeout=args.timeout,
             max_pages=DEFAULT_MAX_PAGES,
             max_depth=DEFAULT_MAX_PAGES,
             deadline=deadline,
