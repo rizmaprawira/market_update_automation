@@ -310,8 +310,38 @@ def fetch_html_browser(url, timeout):
         browser = playwright.chromium.launch(headless=True)
         page = browser.new_page(user_agent=HEADERS["User-Agent"], viewport={"width": 1440, "height": 2200})
         try:
-            page.goto(url, wait_until="networkidle", timeout=timeout * 1000)
+            # Use domcontentloaded first (faster, less timeout-prone)
+            page.goto(url, wait_until="domcontentloaded", timeout=timeout * 1000)
             page.wait_for_timeout(500)
+            html = page.content()
+            final_url = page.url
+            return html, final_url
+        except (PlaywrightTimeoutError, PlaywrightError):
+            # If domcontentloaded fails, try networkidle with longer timeout
+            try:
+                page.goto(url, wait_until="networkidle", timeout=(timeout * 2) * 1000)
+                page.wait_for_timeout(500)
+                html = page.content()
+                final_url = page.url
+                return html, final_url
+            except PlaywrightTimeoutError as e:
+                raise RuntimeError(f"browser timeout after retries: {e}") from e
+            except PlaywrightError as e:
+                raise RuntimeError(f"browser error: {e}") from e
+        finally:
+            browser.close()
+
+def fetch_html_browser_domready(url, timeout, extra_wait_ms=2500):
+    """Fetch HTML using browser with domcontentloaded (faster than networkidle)."""
+    if sync_playwright is None:
+        raise RuntimeError("Playwright not installed; pip install playwright && playwright install chromium")
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        page = browser.new_page(user_agent=HEADERS["User-Agent"], viewport={"width": 1440, "height": 2200})
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=timeout * 1000)
+            page.wait_for_timeout(extra_wait_ms)
             html = page.content()
             final_url = page.url
             return html, final_url
@@ -321,6 +351,7 @@ def fetch_html_browser(url, timeout):
             raise RuntimeError(f"browser error: {e}") from e
         finally:
             browser.close()
+
 
 def fetch_html_with_smart_fallback(session, url, year, month, timeout=30):
     """Fetch HTML with intelligent fallback to browser rendering.
@@ -338,8 +369,15 @@ def fetch_html_with_smart_fallback(session, url, year, month, timeout=30):
     except Exception as e:
         LOGGER.info(f"Static fetch failed ({e}), falling back to browser rendering")
 
-    html, discovered_url = fetch_html_browser(url, timeout)
-    return html, discovered_url, True
+    # Try with domcontentloaded first (faster, less timeout-prone)
+    try:
+        html, discovered_url = fetch_html_browser_domready(url, timeout)
+        return html, discovered_url, True
+    except Exception as e:
+        LOGGER.info(f"Browser domcontentloaded failed ({e}), retrying with longer wait...")
+        # Fall back to networkidle with longer timeout
+        html, discovered_url = fetch_html_browser(url, timeout)
+        return html, discovered_url, True
 
 def download_pdf(session, url, output_path, timeout=30, force=False):
     output_path.parent.mkdir(parents=True, exist_ok=True)
