@@ -256,14 +256,18 @@ def _select_report_filters(page, year, month):
 
 def _stabilize_browser_page(page, timeout):
     page.wait_for_timeout(min(1500, max(500, timeout * 20)))
-    for _ in range(2):
+    for _ in range(3):
         try:
             page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-            page.wait_for_timeout(400)
+            page.wait_for_timeout(500)
             page.evaluate("window.scrollTo(0, 0)")
-            page.wait_for_timeout(250)
+            page.wait_for_timeout(300)
         except Exception:
             break
+    try:
+        page.wait_for_load_state("networkidle", timeout=min(5000, timeout * 500))
+    except Exception:
+        pass
 
 
 def _goto_with_fallback(page, url, timeout):
@@ -339,6 +343,34 @@ def discover_download_candidate(session, html, base_url, year, month, timeout=30
                 queue.append(candidate)
 
     raise RuntimeError(f"no PDF discovered for {year}-{month:02d} from {base_url}")
+
+def try_common_pdf_urls(session, base_url, company_id, year, month, timeout):
+    """Try common Indonesian financial report URL patterns."""
+    month_label = MONTH_LABELS[month]
+    parsed_base = urlparse(base_url)
+    domain_base = f"{parsed_base.scheme}://{parsed_base.netloc}"
+    
+    patterns = [
+        f"{domain_base}/assets/laporan-keuangan-{month_label.lower()}-{year}.pdf",
+        f"{domain_base}/files/laporan-keuangan-{month_label.lower()}-{year}.pdf",
+        f"{domain_base}/pdf/laporan-keuangan-{month_label.lower()}-{year}.pdf",
+        f"{domain_base}/content/laporan-keuangan-{month_label.lower()}-{year}.pdf",
+        f"{domain_base}/uploads/laporan-keuangan-{month_label.lower()}-{year}.pdf",
+        f"{domain_base}/documents/laporan-keuangan-{month_label.lower()}-{year}.pdf",
+        f"{domain_base}/financial-report/{year}/{month:02d}/laporan-keuangan.pdf",
+        f"{domain_base}/laporan-keuangan-{month_label.lower()}-{year}.pdf",
+    ]
+    
+    for url in patterns:
+        try:
+            response = session.head(url, timeout=timeout, allow_redirects=True)
+            if response.status_code == 200 and 'pdf' in response.headers.get('content-type', '').lower():
+                return PDFCandidate(url=url, text=f"Laporan Keuangan {month_label} {year}", 
+                                   score=50, discovered_url=base_url)
+        except Exception:
+            pass
+    return None
+
 
 def validate_pdf(data):
     if len(data) < 16:

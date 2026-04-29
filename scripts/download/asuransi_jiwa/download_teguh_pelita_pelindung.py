@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from _downloader_base import (
+    try_common_pdf_urls,
     build_session, extract_pdf_links, download_pdf, write_manifest, write_debug_html,
     fetch_html_static, fetch_html_browser, current_timestamp
 )
@@ -66,6 +67,12 @@ def main():
 
     candidates = extract_pdf_links(html, discovered_url, args.year, args.month)
     LOGGER.info(f"Found {len(candidates)} PDF candidates for {period}")
+    
+    if not candidates:
+        LOGGER.info("No PDF candidates found, trying common URL patterns")
+        fallback = try_common_pdf_urls(session, SOURCE_URL, COMPANY_ID, args.year, args.month, args.timeout)
+        if fallback:
+            candidates = [fallback]
     
     if not candidates:
         reason = f"no PDFs found for {period}"

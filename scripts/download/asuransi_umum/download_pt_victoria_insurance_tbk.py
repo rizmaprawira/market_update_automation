@@ -7,7 +7,8 @@ from pathlib import Path
 
 from _downloader_base import (
     build_session, extract_pdf_links, download_pdf, write_manifest, write_debug_html,
-    fetch_html_static, fetch_html_browser, fetch_html_with_smart_fallback, current_timestamp
+    fetch_html_static, fetch_html_browser, fetch_html_browser_domready,
+    fetch_html_with_smart_fallback, current_timestamp
 )
 
 LOGGER = logging.getLogger("download_pt_victoria_insurance_tbk")
@@ -43,13 +44,8 @@ def main():
     LOGGER.info(f"Fetching from {SOURCE_URL}")
     
     try:
-        if args.use_browser:
-            LOGGER.info("Using Playwright browser rendering")
-            html, discovered_url = fetch_html_browser(SOURCE_URL, args.timeout)
-        else:
-            html, discovered_url, used_browser = fetch_html_with_smart_fallback(
-                session, SOURCE_URL, args.year, args.month, args.timeout
-            )
+        LOGGER.info("Using browser with domcontentloaded (PDF links are JS-rendered)")
+        html, discovered_url = fetch_html_browser_domready(SOURCE_URL, args.timeout, extra_wait_ms=2000)
     except Exception as e:
         reason = f"failed to fetch: {e}"
         LOGGER.error(reason)
@@ -63,7 +59,7 @@ def main():
             "timestamp": current_timestamp()
         }])
         return 1
-    
+
     candidates = extract_pdf_links(html, discovered_url, args.year, args.month)
     
     if not candidates:

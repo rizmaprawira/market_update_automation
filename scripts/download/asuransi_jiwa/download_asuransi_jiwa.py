@@ -113,7 +113,7 @@ def main():
     parser.add_argument("--month", type=int, required=True, help="Target month (1-12)")
     parser.add_argument("--dry-run", action="store_true", help="Discovery only, no download")
     parser.add_argument("--parallel", type=int, default=1, help="Number of parallel workers (default: 1)")
-    parser.add_argument("--timeout", type=int, default=30, help="Timeout per script in seconds")
+    parser.add_argument("--timeout", type=int, default=60, help="Timeout per script in seconds")
     parser.add_argument("--use-browser", action="store_true", help="Use browser rendering")
     parser.add_argument("--output-root", type=Path, default=Path("data"))
     args = parser.parse_args()

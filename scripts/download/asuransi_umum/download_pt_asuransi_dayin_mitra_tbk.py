@@ -7,7 +7,8 @@ from pathlib import Path
 
 from _downloader_base import (
     build_session, extract_pdf_links, download_pdf, write_manifest, write_debug_html,
-    fetch_html_static, fetch_html_browser, fetch_html_with_smart_fallback, current_timestamp
+    fetch_html_static, fetch_html_browser, fetch_html_browser_domready,
+    fetch_html_with_smart_fallback, current_timestamp, MONTH_NAMES
 )
 
 LOGGER = logging.getLogger("download_pt_asuransi_dayin_mitra_tbk")
@@ -43,13 +44,9 @@ def main():
     LOGGER.info(f"Fetching from {SOURCE_URL}")
     
     try:
-        if args.use_browser:
-            LOGGER.info("Using Playwright browser rendering")
-            html, discovered_url = fetch_html_browser(SOURCE_URL, args.timeout)
-        else:
-            html, discovered_url, used_browser = fetch_html_with_smart_fallback(
-                session, SOURCE_URL, args.year, args.month, args.timeout
-            )
+        browser_timeout = max(args.timeout, 60)
+        LOGGER.info(f"Using browser with domcontentloaded (timeout={browser_timeout}s)")
+        html, discovered_url = fetch_html_browser_domready(SOURCE_URL, browser_timeout, extra_wait_ms=3000)
     except Exception as e:
         reason = f"failed to fetch: {e}"
         LOGGER.error(reason)
@@ -80,7 +77,10 @@ def main():
         }])
         return 0
     
-    selected_candidate = candidates[0]
+    # Prefer candidate whose link text explicitly names the target month
+    month_variants = MONTH_NAMES[args.month]
+    text_matched = [c for c in candidates if any(m in c.text.lower() for m in month_variants)]
+    selected_candidate = text_matched[0] if text_matched else candidates[0]
     LOGGER.info(f"Selected: {selected_candidate.text[:60]}")
     
     if args.dry_run:
