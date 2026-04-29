@@ -6,7 +6,7 @@ from pathlib import Path
 
 from _downloader_base import (
     build_session, discover_download_candidate, download_pdf, write_manifest, write_debug_html,
-    fetch_html_static, fetch_html_browser_report, current_timestamp
+    fetch_html_static, fetch_html_browser_report, current_timestamp, try_common_pdf_urls
 )
 
 LOGGER = logging.getLogger("download_axa_financial_indonesia")
@@ -45,7 +45,11 @@ def main():
             LOGGER.info("Using Playwright browser rendering")
             html, discovered_url = fetch_html_browser_report(SOURCE_URL, args.timeout, args.year, args.month)
         else:
-            html, discovered_url = fetch_html_static(session, SOURCE_URL, args.timeout)
+            try:
+                html, discovered_url = fetch_html_static(session, SOURCE_URL, args.timeout)
+            except Exception:
+                LOGGER.info("Static fetch failed, falling back to Playwright browser rendering")
+                html, discovered_url = fetch_html_browser_report(SOURCE_URL, args.timeout, args.year, args.month)
     except Exception as e:
         reason = f"failed to fetch: {e}"
         LOGGER.error(reason)
@@ -58,11 +62,18 @@ def main():
         LOGGER.info(f"Selected: {best.text}")
         LOGGER.info(f"URL: {best.url}")
     except Exception as e:
-        reason = f"no PDFs found for {period}"
-        LOGGER.error(f"{reason}: {e}")
-        if args.debug_html:
-            write_debug_html(debug_dir, html, reason)
-        return 1
+        LOGGER.info("No PDF candidates found, trying common URL patterns")
+        fallback = try_common_pdf_urls(session, SOURCE_URL, COMPANY_ID, args.year, args.month, args.timeout)
+        if fallback:
+            best = fallback
+            LOGGER.info(f"Selected (fallback): {best.text}")
+            LOGGER.info(f"URL: {best.url}")
+        else:
+            reason = f"no PDFs found for {period}"
+            LOGGER.error(f"{reason}: {e}")
+            if args.debug_html:
+                write_debug_html(debug_dir, html, reason)
+            return 1
     
     if args.dry_run:
         LOGGER.info("Dry-run complete - no download")
