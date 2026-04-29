@@ -404,6 +404,54 @@ def fetch_html_browser(url, timeout):
         finally:
             browser.close()
 
+def fetch_html_browser_domready(url, timeout, extra_wait_ms=2500):
+    """Fetch HTML using browser with domcontentloaded (faster than networkidle)."""
+    if sync_playwright is None:
+        raise RuntimeError("Playwright not installed; pip install playwright && playwright install chromium")
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        page = browser.new_page(user_agent=HEADERS["User-Agent"], viewport={"width": 1440, "height": 2200})
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=timeout * 1000)
+            page.wait_for_timeout(extra_wait_ms)
+            html = page.content()
+            final_url = page.url
+            return html, final_url
+        except PlaywrightTimeoutError as e:
+            raise RuntimeError(f"browser timeout: {e}") from e
+        except PlaywrightError as e:
+            raise RuntimeError(f"browser error: {e}") from e
+        finally:
+            browser.close()
+
+
+def fetch_html_with_smart_fallback(session, url, year, month, timeout=30):
+    """Fetch HTML with intelligent fallback to browser rendering.
+
+    Tries static HTML first, then falls back to browser if:
+    1. Static fetch fails with any error
+    2. Static fetch succeeds but no PDFs are found (content is JS-rendered)
+    """
+    try:
+        html, discovered_url = fetch_html_static(session, url, timeout)
+        candidates = extract_pdf_links(html, discovered_url, year, month)
+        if candidates:
+            return html, discovered_url, False
+        LOGGER.info("No PDFs found in static HTML, falling back to browser rendering")
+    except Exception as e:
+        LOGGER.info(f"Static fetch failed ({e}), falling back to browser rendering")
+
+    # Try with domcontentloaded first (faster, less timeout-prone)
+    try:
+        html, discovered_url = fetch_html_browser_domready(url, timeout)
+        return html, discovered_url, True
+    except Exception as e:
+        LOGGER.info(f"Browser domcontentloaded failed ({e}), retrying with longer wait...")
+        # Fall back to networkidle with longer timeout
+        html, discovered_url = fetch_html_browser(url, timeout)
+        return html, discovered_url, True
+
 def download_pdf(session, url, output_path, timeout=30, force=False):
     output_path.parent.mkdir(parents=True, exist_ok=True)
     

@@ -16,16 +16,32 @@ CATEGORY = "asuransi_jiwa"
 
 
 def get_all_company_scripts():
-    """Return sorted list of all download_*.py scripts."""
-    scripts = sorted(SCRIPT_DIR.glob("download_*.py"))
-    # Exclude the orchestrator script itself
-    scripts = [s for s in scripts if s.name != "download_asuransi_jiwa.py" and s.is_file()]
-    return scripts
+    """Return sorted list of all download_pt_*.py scripts."""
+    scripts = sorted(SCRIPT_DIR.glob("download_pt_*.py"))
+    return [s for s in scripts if s.is_file()]
 
 
-def run_single_company(script_path, year, month, dry_run=False, timeout=30, use_browser=False):
+def check_if_pdf_exists(company_id, year, month, output_root):
+    """Check if PDF already exists for a company."""
+    period = f"{year:04d}-{month:02d}"
+    output_dir = output_root / period / "raw_pdf" / CATEGORY / company_id
+    output_pdf = output_dir / f"{company_id}_{period}.pdf"
+    return output_pdf.exists() and output_pdf.stat().st_size > 0
+
+
+def run_single_company(script_path, year, month, dry_run=False, timeout=30, use_browser=False, output_root=None):
     """Run a single company's download script and return results."""
     company_id = script_path.stem.replace("download_", "")
+
+    # Check if PDF already exists (unless dry-run)
+    if not dry_run and output_root and check_if_pdf_exists(company_id, year, month, output_root):
+        return {
+            "company_id": company_id,
+            "status": "already_exists",
+            "reason": "PDF already downloaded",
+            "returncode": 0,
+            "output_snippet": []
+        }
 
     cmd = [
         "python", str(script_path),
@@ -159,7 +175,8 @@ def main():
                 script, args.year, args.month,
                 dry_run=args.dry_run,
                 timeout=args.timeout,
-                use_browser=args.use_browser
+                use_browser=args.use_browser,
+                output_root=args.output_root
             )
             results.append(result)
 
@@ -184,7 +201,7 @@ def main():
             futures = {
                 executor.submit(
                     run_single_company, script, args.year, args.month,
-                    args.dry_run, args.timeout, args.use_browser
+                    args.dry_run, args.timeout, args.use_browser, args.output_root
                 ): script for script in scripts
             }
 
