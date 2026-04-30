@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-"""Download the conventional financial report PDF for Tugu Re.
+"""Download the conventional financial report PDF for Nusantara Re.
 
-This script accesses the monthly reports page at https://www.tugure.id/id/financial/monthly
-and downloads only the conventional monthly financial report PDF for the requested year/month.
-It excludes syariah/sharia/UUS/islamic documents, writes a manifest, and saves debug
-HTML snapshots when the target PDF cannot be found.
+This script starts from https://nusantarare.com/report/?lang=in and downloads only
+the conventional monthly financial report PDF for the requested year/month. It
+requires browser rendering (--use-browser) because the site uses a year dropdown
+menu to filter reports. It excludes syariah/sharia/UUS/islamic documents, writes
+a manifest, and saves debug HTML snapshots when the target PDF cannot be found.
 """
 
 import argparse
@@ -41,19 +42,19 @@ except ImportError:  # pragma: no cover - browser fallback is optional.
     sync_playwright = None  # type: ignore[assignment]
 
 
-LOGGER = logging.getLogger("download_tugure_report")
+LOGGER = logging.getLogger("download_nusantarare_report")
 
-SOURCE_URL = "https://www.tugure.id/id/financial/monthly"
-COMPANY_ID = "tugure"
-COMPANY_NAME = "PT Tugu Reasuransi Indonesia"
+SOURCE_URL = "https://nusantarare.com/report/?lang=in"
+COMPANY_ID = "pt_reasuransi_nusantara_makmur"
+COMPANY_NAME = "PT Reasuransi Nusantara Makmur"
 CATEGORY = "reasuransi"
 OUTPUT_SUBDIR = "raw_pdf"
 DEBUG_HTML_DIRNAME = "_debug_html"
 
-DEFAULT_TIMEOUT = 30
-DEFAULT_MAX_PAGES = 24
+DEFAULT_TIMEOUT = 45  # Longer timeout for dropdown interaction
+DEFAULT_MAX_PAGES = 30
 DEFAULT_MAX_LINKS_PER_PAGE = 80
-MAX_RUNTIME_SECONDS = 180
+MAX_RUNTIME_SECONDS = 240  # Allow time for browser + dropdown selection
 MANIFEST_TIMEZONE = ZoneInfo("Asia/Jakarta")
 
 MONTH_NAMES: dict[int, list[str]] = {
@@ -181,7 +182,7 @@ class Candidate:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Download the conventional financial report PDF for Tugu Re.",
+        description="Download the conventional financial report PDF for Nusantara Re.",
     )
     parser.add_argument(
         "--year",
@@ -419,7 +420,13 @@ def same_domain(url_a: str, url_b: str) -> bool:
 
 
 def is_pdf_url(url: str) -> bool:
-    return urlparse(url).path.lower().endswith(".pdf")
+    parsed = urlparse(url)
+    path_lower = parsed.path.lower()
+    if path_lower.endswith(".pdf"):
+        return True
+    if "showdoc.php" in path_lower:
+        return True
+    return False
 
 
 def fetch_html(session: requests.Session, url: str, timeout: int) -> tuple[str, str, int, str]:
@@ -442,13 +449,42 @@ def render_html_with_browser(url: str, timeout: int, year: int) -> tuple[str, st
             viewport={"width": 1440, "height": 2200},
         )
         try:
-            page.goto(url, wait_until="networkidle", timeout=timeout * 1000)
-            for label in ("FINANCIAL REPORT", "LAPORAN KEUANGAN", str(year)):
-                try:
-                    page.get_by_text(label, exact=False).first.click(timeout=1500)
-                except Exception:
-                    pass
-            page.wait_for_timeout(500)
+            page.goto(url, wait_until="load", timeout=timeout * 1000)
+            page.wait_for_timeout(2000)
+
+            # Find and select the year from dropdown for Nusantara Re
+            year_str = str(year)
+            year_selected = False
+            try:
+                # Try to find select elements
+                selects = page.locator("select").all()
+                for select_elem in selects:
+                    try:
+                        # Check if this select has the year option
+                        select_elem.select_option(year_str, timeout=2000)
+                        page.wait_for_timeout(2500)
+                        year_selected = True
+                        break
+                    except Exception:
+                        # Try by label/value patterns
+                        try:
+                            options = select_elem.locator("option").all()
+                            for option in options:
+                                option_text = option.inner_text(timeout=500)
+                                if year_str in option_text:
+                                    option.click(timeout=1000)
+                                    page.wait_for_timeout(2500)
+                                    year_selected = True
+                                    break
+                            if year_selected:
+                                break
+                        except Exception:
+                            continue
+            except Exception:
+                pass
+
+            # Wait for content to load after year selection
+            page.wait_for_timeout(1000)
             html = page.content()
             final_url = canonical_url(page.url)
             return html, final_url
@@ -620,7 +656,11 @@ def download_pdf(
         if validate_pdf_bytes(existing):
             return None, len(existing)
 
-    with session.get(pdf_url, timeout=timeout, stream=True) as response:
+    # For Nusantara Re showdoc.php links, they serve PDF directly with proper Content-Type
+    headers = HEADERS.copy()
+    headers["Accept"] = "application/pdf,*/*;q=0.8"
+
+    with session.get(pdf_url, timeout=timeout, stream=True, headers=headers) as response:
         status = response.status_code
         response.raise_for_status()
         content_type = response.headers.get("Content-Type", "").lower()
@@ -638,9 +678,15 @@ def download_pdf(
                 tmp.flush()
 
     data = temp_path.read_bytes()
+    if len(data) == 0:
+        temp_path.unlink(missing_ok=True)
+        raise RuntimeError(f"empty response from {pdf_url}")
     if "pdf" not in content_type and not validate_pdf_bytes(data):
         temp_path.unlink(missing_ok=True)
-        raise RuntimeError(f"downloaded file from {pdf_url} is not a valid PDF")
+        raise RuntimeError(
+            f"downloaded file from {pdf_url} is not a valid PDF "
+            f"(Content-Type: {content_type}, size: {len(data)} bytes)"
+        )
     if not validate_pdf_bytes(data):
         temp_path.unlink(missing_ok=True)
         raise RuntimeError(f"downloaded file from {pdf_url} failed PDF validation")
@@ -726,7 +772,7 @@ def main(argv: list[str] | None = None) -> int:
     deadline = time.monotonic() + MAX_RUNTIME_SECONDS
     session = build_session()
 
-    LOGGER.info("starting discovery from %s", SOURCE_URL)
+    LOGGER.info("starting discovery from %s (requires browser for year dropdown)", SOURCE_URL)
     candidates: list[Candidate] = []
     snapshots: list[dict[str, str]] = []
     source_html = ""
@@ -734,17 +780,21 @@ def main(argv: list[str] | None = None) -> int:
     discovery_error: str | None = None
 
     try:
+        # Nusantara Re requires browser rendering for year dropdown selection
+        use_browser_for_discovery = args.use_browser or True
+        LOGGER.info("using browser rendering: %s", use_browser_for_discovery)
         candidates, snapshots, source_html, rendered_html = discover_candidates(
             session,
             SOURCE_URL,
             args.year,
             args.month,
-            use_browser=args.use_browser,
+            use_browser=use_browser_for_discovery,
             timeout=args.timeout,
             max_pages=DEFAULT_MAX_PAGES,
             max_depth=DEFAULT_MAX_PAGES,
             deadline=deadline,
         )
+        LOGGER.info("discovered %d candidates", len(candidates))
     except Exception as exc:
         discovery_error = summarize_exception(exc)
         LOGGER.error("discovery failed: %s", discovery_error)

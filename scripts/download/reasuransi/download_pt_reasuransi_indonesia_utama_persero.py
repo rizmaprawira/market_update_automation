@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-"""Download the conventional financial report PDF for Inare.
+"""Download the conventional financial report PDF for Indonesia Re.
 
-This script starts from https://inare.co.id/en/report/ and downloads only the
-conventional monthly financial report PDF for the requested year/month. It
-excludes syariah/sharia/UUS/islamic documents, writes a manifest, and saves
-debug HTML snapshots when the target PDF cannot be found.
+This script starts from https://www.indonesiare.co.id/id/investor-relations/financial-report
+and downloads only the conventional monthly financial report PDF for the requested year/month.
+It excludes syariah/sharia/UUS/islamic documents, writes a manifest, and saves debug HTML
+snapshots when the target PDF cannot be found.
 """
 
 import argparse
@@ -41,19 +41,19 @@ except ImportError:  # pragma: no cover - browser fallback is optional.
     sync_playwright = None  # type: ignore[assignment]
 
 
-LOGGER = logging.getLogger("download_inare_report")
+LOGGER = logging.getLogger("download_indonesiare_report")
 
-SOURCE_URL = "https://inare.co.id/en/report/"
-COMPANY_ID = "inare"
-COMPANY_NAME = "PT Indoperkasa Suksesjaya Reasuransi"
+SOURCE_URL = "https://www.indonesiare.co.id/id/investor-relations/financial-report"
+COMPANY_ID = "pt_reasuransi_indonesia_utama_persero"
+COMPANY_NAME = "PT Reasuransi Indonesia Utama Persero"
 CATEGORY = "reasuransi"
 OUTPUT_SUBDIR = "raw_pdf"
 DEBUG_HTML_DIRNAME = "_debug_html"
 
 DEFAULT_TIMEOUT = 30
-DEFAULT_MAX_PAGES = 24
+DEFAULT_MAX_PAGES = 100  # Indonesia Re has ~21 pages with 4 reports each
 DEFAULT_MAX_LINKS_PER_PAGE = 80
-MAX_RUNTIME_SECONDS = 180
+MAX_RUNTIME_SECONDS = 300  # Increase runtime for multi-page crawl
 MANIFEST_TIMEZONE = ZoneInfo("Asia/Jakarta")
 
 MONTH_NAMES: dict[int, list[str]] = {
@@ -181,7 +181,7 @@ class Candidate:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Download the conventional financial report PDF for Inare.",
+        description="Download the conventional financial report PDF for Indonesia Re.",
     )
     parser.add_argument(
         "--year",
@@ -422,28 +422,6 @@ def is_pdf_url(url: str) -> bool:
     return urlparse(url).path.lower().endswith(".pdf")
 
 
-def should_follow_link(link: dict[str, str], year: int, month: int) -> bool:
-    text = link["text"]
-    url = link["url"]
-    if is_syariah_candidate(text) or is_unrelated_candidate(text):
-        return False
-    if is_pdf_url(url):
-        return False
-    source_parsed = urlparse(SOURCE_URL)
-    parsed = urlparse(url)
-    if parsed.netloc.lower() != source_parsed.netloc.lower():
-        return False
-    if parsed.path != source_parsed.path:
-        return False
-    page_values = re.findall(r"(?:^|&)page=(\d+)", parsed.query)
-    if not page_values:
-        return False
-    try:
-        return int(page_values[-1]) > 1
-    except ValueError:
-        return False
-
-
 def fetch_html(session: requests.Session, url: str, timeout: int) -> tuple[str, str, int, str]:
     response = session.get(url, timeout=timeout)
     status = response.status_code
@@ -596,8 +574,17 @@ def discover_candidates(
                 if candidate is not None:
                     candidates.append(candidate)
                 continue
-            if depth < max_depth and should_follow_link(link, year, month):
-                queue.append((link_url, depth + 1, discovery_method))
+            # Follow pagination and other same-domain links
+            if depth < max_depth and same_domain(link_url, source_url):
+                # Check if it looks like a pagination link or navigation
+                link_url_lower = link_url.lower()
+                link_text_lower = normalize_text(link_text)
+                is_pagination = (
+                    "page=" in link_url_lower or
+                    any(term in link_text_lower for term in ["page", "next", "previous", "prev", ">", "<"])
+                )
+                if is_pagination or "financial" in link_text_lower or "laporan" in link_text_lower:
+                    queue.append((link_url, depth + 1, discovery_method))
 
     if use_browser and not rendered_html and source_html:
         rendered_html = source_html
@@ -853,7 +840,7 @@ def main(argv: list[str] | None = None) -> int:
             session,
             best.pdf_url,
             output_pdf,
-            timeout=DEFAULT_TIMEOUT,
+            timeout=args.timeout,
             force=args.force,
         )
     except Exception as exc:

@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-"""Download Marein's conventional financial report PDF.
+"""Download Nasre's conventional financial report PDF.
 
-This script is specific to PT Maskapai Reasuransi Indonesia Tbk. and downloads
-financial reports from their AJAX API and fallback page. Supports discovery-only
-mode, dry-run, and browser rendering fallback.
+This script is specific to PT Reasuransi Nasional Indonesia and downloads
+financial reports from their listing page. Supports discovery-only, dry-run,
+browser rendering fallback, and debug HTML snapshots.
 
 Usage:
-    python scripts/download/reasuransi/download_marein.py \
+    python scripts/download/reasuransi/download_nasre.py \
         --year 2026 --month 3 \
         --output-root data \
         [--discover-only] \
@@ -17,8 +17,8 @@ Usage:
         [--force] \
         [--timeout 30]
 
-The script searches via:
-    https://marein-re.com/keuangan/searchLaporanKeuangan (AJAX API)
+The script starts from:
+    https://nasionalre.id/laporan-tahunan
 """
 
 import argparse
@@ -27,9 +27,11 @@ import json
 import logging
 import re
 import tempfile
+from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urljoin
 from zoneinfo import ZoneInfo
 
 import requests
@@ -41,19 +43,25 @@ except ImportError:
     sync_playwright = None  # type: ignore
     PlaywrightTimeoutError = TimeoutError  # type: ignore
 
-LOGGER = logging.getLogger("download_marein")
-COMPANY_NAME = "PT Maskapai Reasuransi Indonesia Tbk."
-COMPANY_ID = "marein"
+
+LOGGER = logging.getLogger("download_nasre")
+COMPANY_NAME = "PT Reasuransi Nasional Indonesia"
+COMPANY_ID = "pt_reasuransi_nasional_indonesia"
 CATEGORY = "reasuransi"
-SOURCE_PAGE_URL = "https://marein-re.com/laporan-keuangan"
-AJAX_URL = "https://marein-re.com/keuangan/searchLaporanKeuangan"
+SOURCE_PAGE_URL = "https://nasionalre.id/laporan-tahunan"
 DEFAULT_TIMEOUT = 30
 MANIFEST_TIMEZONE = ZoneInfo("Asia/Jakarta")
 DEFAULT_USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 )
-
+DEFAULT_HEADERS = {
+    "User-Agent": DEFAULT_USER_AGENT,
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache",
+}
 MONTH_ALIASES: dict[int, tuple[str, ...]] = {
     1: ("januari", "january", "jan"),
     2: ("februari", "february", "feb"),
@@ -69,19 +77,27 @@ MONTH_ALIASES: dict[int, tuple[str, ...]] = {
     12: ("desember", "december", "dec", "des"),
 }
 SYARIAH_TERMS = ("syariah", "shariah", "sharia", "uus", "islamic", "unit usaha syariah")
+REPORT_HINTS = (
+    "laporan keuangan",
+    "laporan bulanan",
+    "financial report",
+    "financial statement",
+    "publikasi laporan keuangan",
+    "report",
+    "statement",
+)
+CONVENTIONAL_HINTS = ("konvensional", "conventional")
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Download Marein's conventional financial report PDF.",
-    )
+    parser = argparse.ArgumentParser(description="Download Nasre's conventional financial report PDF.")
     parser.add_argument("--year", type=int, required=True, help="Target report year (e.g. 2026).")
     parser.add_argument("--month", type=int, required=True, help="Target report month (1-12).")
     parser.add_argument(
         "--output-root",
         type=Path,
         default=Path("data"),
-        help="Root output directory (files written to {root}/{YYYY-MM}/raw_pdf/reasuransi/marein/).",
+        help="Root output directory (files written to {root}/{YYYY-MM}/raw_pdf/reasuransi/nasre/).",
     )
     parser.add_argument("--dry-run", action="store_true", help="Discover without writing PDF.")
     parser.add_argument(
@@ -121,16 +137,16 @@ def _output_dir(output_root: Path, year: int, month: int) -> Path:
     return output_root / f"{year:04d}-{month:02d}" / "raw_pdf" / CATEGORY / COMPANY_ID
 
 
-def _clean_text(value: Any) -> str:
-    if value is None:
-        return ""
-    return re.sub(r"\s+", " ", str(value)).strip()
-
-
 def _ascii_fold(value: str) -> str:
     import unicodedata
     normalized = unicodedata.normalize("NFKD", value)
     return normalized.encode("ascii", "ignore").decode("ascii")
+
+
+def _clean_text(value: Any) -> str:
+    if value is None:
+        return ""
+    return re.sub(r"\s+", " ", str(value)).strip()
 
 
 def _normalize_text(value: Any) -> str:
@@ -150,6 +166,11 @@ def _contains_period(text: str, year: int, month: int) -> bool:
     return any(re.search(pattern, text) for pattern in patterns)
 
 
+def _is_syariah_text(text: str) -> bool:
+    normalized = _normalize_text(text)
+    return any(term in normalized for term in SYARIAH_TERMS)
+
+
 def _is_target_period(text: str, year: int, month: int) -> bool:
     normalized = _normalize_text(text)
     if str(year) not in normalized:
@@ -159,56 +180,6 @@ def _is_target_period(text: str, year: int, month: int) -> bool:
     return any(token in normalized for token in MONTH_ALIASES[month])
 
 
-def _is_syariah_text(text: str) -> bool:
-    normalized = _normalize_text(text)
-    return any(term in normalized for term in SYARIAH_TERMS)
-
-
-def _discover_ajax_candidates(year: int, month: int, timeout: int) -> tuple[dict[str, Any] | None, str]:
-    """Query AJAX API for matching reports."""
-    session = requests.Session()
-    session.headers.update({"User-Agent": DEFAULT_USER_AGENT})
-
-    try:
-        for category_id in ("1", "2", "3", "4", "5", "ALL"):
-            try:
-                response = session.post(
-                    AJAX_URL,
-                    data={"page": 1, "category_id": category_id, "year": str(year), "month": str(month)},
-                    timeout=timeout,
-                )
-                response.raise_for_status()
-                payload = response.json()
-                table_html = _clean_text(payload.get("table_finance_report", ""))
-
-                if "Data Tidak Ditemukan" in table_html or "Tidak Ada Data" in table_html:
-                    continue
-
-                soup = BeautifulSoup(table_html, "html.parser")
-                for row in soup.find_all("tr"):
-                    link = row.find("a", href=True)
-                    if link is None:
-                        continue
-
-                    cells = [_clean_text(cell.get_text(" ", strip=True)) for cell in row.find_all(["th", "td"])]
-                    row_text = _clean_text(" ".join(cells))
-                    pdf_url = _clean_text(link.get("href", "")).replace("\\/", "/")
-
-                    if not pdf_url or _is_syariah_text(row_text) or _is_syariah_text(pdf_url):
-                        continue
-                    if not _is_target_period(row_text, year, month):
-                        continue
-
-                    LOGGER.info("found AJAX match in category %s", category_id)
-                    return {"url": pdf_url, "text": row_text, "match_score": "high"}, "ajax"
-            except Exception:
-                continue
-
-        return None, "no_ajax_match"
-    finally:
-        session.close()
-
-
 def _validate_pdf_bytes(data: bytes) -> bool:
     if len(data) < 16:
         return False
@@ -216,6 +187,91 @@ def _validate_pdf_bytes(data: bytes) -> bool:
         return False
     tail = data[-2048:] if len(data) > 2048 else data
     return b"%%EOF" in tail
+
+
+def _extract_candidates_from_html(html: str, base_url: str, year: int, month: int) -> tuple[list[dict[str, Any]], int, int]:
+    """Extract PDF candidates from HTML, returning (candidates, syariah_count, unrelated_count)."""
+    soup = BeautifulSoup(html, "html.parser")
+    candidates: list[dict[str, Any]] = []
+    rejected_syariah = 0
+    rejected_unrelated = 0
+    seen_urls: set[str] = set()
+
+    for anchor in soup.find_all("a", href=True):
+        href = _clean_text(anchor.get("href", ""))
+        if not href:
+            continue
+
+        pdf_url = urljoin(base_url, href)
+        if not pdf_url.lower().endswith(".pdf"):
+            continue
+        if pdf_url in seen_urls:
+            continue
+        seen_urls.add(pdf_url)
+
+        text = _clean_text(anchor.get_text(" ", strip=True))
+        blob = _normalize_text(f"{text} {pdf_url}")
+
+        if _is_syariah_text(blob):
+            rejected_syariah += 1
+            continue
+        if not _is_target_period(blob, year, month):
+            rejected_unrelated += 1
+            continue
+        if not any(hint in blob for hint in REPORT_HINTS):
+            rejected_unrelated += 1
+            continue
+
+        score = 0
+        if any(hint in blob for hint in CONVENTIONAL_HINTS):
+            score += 200
+        if "laporan keuangan" in blob:
+            score += 120
+        if _contains_period(blob, year, month):
+            score += 100
+        if blob.endswith(".pdf"):
+            score += 50
+
+        candidates.append({
+            "pdf_url": pdf_url,
+            "text": text,
+            "score": score,
+        })
+
+    candidates.sort(key=lambda x: x["score"], reverse=True)
+    return candidates, rejected_syariah, rejected_unrelated
+
+
+def _fetch_page(url: str, timeout: int) -> tuple[str, str]:
+    """Fetch page HTML using requests."""
+    session = requests.Session()
+    session.headers.update(DEFAULT_HEADERS)
+    try:
+        response = session.get(url, timeout=timeout, allow_redirects=True)
+        response.raise_for_status()
+        return response.text, response.url
+    finally:
+        session.close()
+
+
+def _fetch_page_with_browser(url: str, timeout: int) -> tuple[str, str]:
+    """Fetch page HTML using Playwright."""
+    if sync_playwright is None:
+        raise RuntimeError("Playwright is not installed; cannot use --use-browser")
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page(user_agent=DEFAULT_USER_AGENT)
+        try:
+            page.goto(url, wait_until="networkidle", timeout=timeout * 1000)
+            page.wait_for_timeout(500)
+            html = page.content()
+            final_url = page.url
+            return html, final_url
+        except PlaywrightTimeoutError as e:
+            raise RuntimeError(f"browser timeout: {e}") from e
+        finally:
+            browser.close()
 
 
 def _download_file(url: str, output_path: Path, timeout: int, force: bool, dry_run: bool) -> tuple[str, str | None]:
@@ -302,7 +358,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     LOGGER.info(
-        "starting marein download | year=%04d month=%02d dry_run=%s force=%s use_browser=%s",
+        "starting nasre download | year=%04d month=%02d dry_run=%s force=%s use_browser=%s",
         args.year,
         args.month,
         args.dry_run,
@@ -310,19 +366,68 @@ def main(argv: list[str] | None = None) -> int:
         args.use_browser,
     )
 
-    report, discovery_method = _discover_ajax_candidates(args.year, args.month, args.timeout)
+    html = ""
+    final_url = SOURCE_PAGE_URL
+    syariah_count = 0
+    unrelated_count = 0
 
-    if report is None:
+    try:
+        html, final_url = _fetch_page(SOURCE_PAGE_URL, args.timeout)
+    except Exception as e:
+        LOGGER.debug("static fetch failed: %s", e)
+        if args.use_browser:
+            try:
+                html, final_url = _fetch_page_with_browser(SOURCE_PAGE_URL, args.timeout)
+            except Exception as e2:
+                LOGGER.error("browser fallback also failed: %s", e2)
+                record = {
+                    "category": CATEGORY,
+                    "company_name": COMPANY_NAME,
+                    "source_page_url": SOURCE_PAGE_URL,
+                    "target_year": args.year,
+                    "target_month": args.month,
+                    "pdf_url": None,
+                    "output_path": None,
+                    "status": "fetch_failed",
+                    "reason": str(e2),
+                    "file_size_bytes": None,
+                    "timestamp": datetime.now(MANIFEST_TIMEZONE).isoformat(),
+                }
+                output_dir = _output_dir(args.output_root, args.year, args.month)
+                _write_manifest([record], output_dir)
+                return 1
+        else:
+            LOGGER.error("page fetch failed")
+            record = {
+                "category": CATEGORY,
+                "company_name": COMPANY_NAME,
+                "source_page_url": SOURCE_PAGE_URL,
+                "target_year": args.year,
+                "target_month": args.month,
+                "pdf_url": None,
+                "output_path": None,
+                "status": "fetch_failed",
+                "reason": str(e),
+                "file_size_bytes": None,
+                "timestamp": datetime.now(MANIFEST_TIMEZONE).isoformat(),
+            }
+            output_dir = _output_dir(args.output_root, args.year, args.month)
+            _write_manifest([record], output_dir)
+            return 1
+
+    candidates, syariah_count, unrelated_count = _extract_candidates_from_html(html, final_url, args.year, args.month)
+
+    if not candidates:
         record = {
             "category": CATEGORY,
             "company_name": COMPANY_NAME,
-            "source_page_url": AJAX_URL,
+            "source_page_url": SOURCE_PAGE_URL,
             "target_year": args.year,
             "target_month": args.month,
             "pdf_url": None,
             "output_path": None,
             "status": "no_match",
-            "reason": f"no conventional reports found for {args.month:02d}/{args.year} via AJAX API",
+            "reason": f"no conventional reports found for {args.month:02d}/{args.year} (syariah={syariah_count}, unrelated={unrelated_count})",
             "file_size_bytes": None,
             "timestamp": datetime.now(MANIFEST_TIMEZONE).isoformat(),
         }
@@ -331,22 +436,18 @@ def main(argv: list[str] | None = None) -> int:
         LOGGER.info("no matching reports found")
         return 1
 
-    LOGGER.info("found report via %s", discovery_method)
-
-    pdf_url = report["url"]
-    if not pdf_url.startswith("http"):
-        from urllib.parse import urljoin
-        pdf_url = urljoin(SOURCE_PAGE_URL, pdf_url)
+    best = candidates[0]
+    LOGGER.info("found report with score %d", best["score"])
 
     if args.discover_only:
         output_dir = _output_dir(args.output_root, args.year, args.month)
         record = {
             "category": CATEGORY,
             "company_name": COMPANY_NAME,
-            "source_page_url": AJAX_URL,
+            "source_page_url": SOURCE_PAGE_URL,
             "target_year": args.year,
             "target_month": args.month,
-            "pdf_url": pdf_url,
+            "pdf_url": best["pdf_url"],
             "output_path": None,
             "status": "discover_only",
             "reason": None,
@@ -360,7 +461,7 @@ def main(argv: list[str] | None = None) -> int:
     output_dir = _output_dir(args.output_root, args.year, args.month)
     output_path = output_dir / f"{COMPANY_ID}_{args.year:04d}_{args.month:02d}.pdf"
 
-    status, reason = _download_file(pdf_url, output_path, args.timeout, args.force, args.dry_run)
+    status, reason = _download_file(best["pdf_url"], output_path, args.timeout, args.force, args.dry_run)
 
     file_size = None
     if output_path.exists():
@@ -369,10 +470,10 @@ def main(argv: list[str] | None = None) -> int:
     record = {
         "category": CATEGORY,
         "company_name": COMPANY_NAME,
-        "source_page_url": AJAX_URL,
+        "source_page_url": SOURCE_PAGE_URL,
         "target_year": args.year,
         "target_month": args.month,
-        "pdf_url": pdf_url,
+        "pdf_url": best["pdf_url"],
         "output_path": str(output_path),
         "status": status,
         "reason": reason,

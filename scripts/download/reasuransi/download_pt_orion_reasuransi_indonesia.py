@@ -43,7 +43,7 @@ except ImportError:  # pragma: no cover - browser fallback is optional.
 LOGGER = logging.getLogger("download_orionre_report")
 
 SOURCE_URL = "https://www.orionre.id/id/publikasi.html"
-COMPANY_ID = "orionre"
+COMPANY_ID = "pt_orion_reasuransi_indonesia"
 COMPANY_NAME = "PT Orion Reasuransi Indonesia"
 CATEGORY = "reasuransi"
 OUTPUT_SUBDIR = "raw_pdf"

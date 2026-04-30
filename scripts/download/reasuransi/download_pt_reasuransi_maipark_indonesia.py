@@ -44,7 +44,7 @@ except ImportError:
 
 LOGGER = logging.getLogger("download_maipark")
 COMPANY_NAME = "PT Reasuransi MAIPARK Indonesia"
-COMPANY_ID = "maipark"
+COMPANY_ID = "pt_reasuransi_maipark_indonesia"
 CATEGORY = "reasuransi"
 SOURCE_PAGE_URL_TEMPLATE = "https://maipark.com/id/corporate/laporan?financePage={page}&yearlyPage=1&type=financial"
 DEFAULT_TIMEOUT = 30

@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-"""Download the conventional financial report PDF for Indonesia Re.
+"""Download the conventional financial report PDF for Tugu Re.
 
-This script starts from https://www.indonesiare.co.id/id/investor-relations/financial-report
+This script accesses the monthly reports page at https://www.tugure.id/id/financial/monthly
 and downloads only the conventional monthly financial report PDF for the requested year/month.
-It excludes syariah/sharia/UUS/islamic documents, writes a manifest, and saves debug HTML
-snapshots when the target PDF cannot be found.
+It excludes syariah/sharia/UUS/islamic documents, writes a manifest, and saves debug
+HTML snapshots when the target PDF cannot be found.
 """
 
 import argparse
@@ -41,19 +41,19 @@ except ImportError:  # pragma: no cover - browser fallback is optional.
     sync_playwright = None  # type: ignore[assignment]
 
 
-LOGGER = logging.getLogger("download_indonesiare_report")
+LOGGER = logging.getLogger("download_tugure_report")
 
-SOURCE_URL = "https://www.indonesiare.co.id/id/investor-relations/financial-report"
-COMPANY_ID = "indonesiare"
-COMPANY_NAME = "PT Reasuransi Indonesia Utama Persero"
+SOURCE_URL = "https://www.tugure.id/id/financial/monthly"
+COMPANY_ID = "pt_tugu_reasuransi_indonesia"
+COMPANY_NAME = "PT Tugu Reasuransi Indonesia"
 CATEGORY = "reasuransi"
 OUTPUT_SUBDIR = "raw_pdf"
 DEBUG_HTML_DIRNAME = "_debug_html"
 
 DEFAULT_TIMEOUT = 30
-DEFAULT_MAX_PAGES = 100  # Indonesia Re has ~21 pages with 4 reports each
+DEFAULT_MAX_PAGES = 24
 DEFAULT_MAX_LINKS_PER_PAGE = 80
-MAX_RUNTIME_SECONDS = 300  # Increase runtime for multi-page crawl
+MAX_RUNTIME_SECONDS = 180
 MANIFEST_TIMEZONE = ZoneInfo("Asia/Jakarta")
 
 MONTH_NAMES: dict[int, list[str]] = {
@@ -181,7 +181,7 @@ class Candidate:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Download the conventional financial report PDF for Indonesia Re.",
+        description="Download the conventional financial report PDF for Tugu Re.",
     )
     parser.add_argument(
         "--year",
@@ -574,17 +574,8 @@ def discover_candidates(
                 if candidate is not None:
                     candidates.append(candidate)
                 continue
-            # Follow pagination and other same-domain links
             if depth < max_depth and same_domain(link_url, source_url):
-                # Check if it looks like a pagination link or navigation
-                link_url_lower = link_url.lower()
-                link_text_lower = normalize_text(link_text)
-                is_pagination = (
-                    "page=" in link_url_lower or
-                    any(term in link_text_lower for term in ["page", "next", "previous", "prev", ">", "<"])
-                )
-                if is_pagination or "financial" in link_text_lower or "laporan" in link_text_lower:
-                    queue.append((link_url, depth + 1, discovery_method))
+                queue.append((link_url, depth + 1, discovery_method))
 
     if use_browser and not rendered_html and source_html:
         rendered_html = source_html
