@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_china_life_insurance_indonesia",
+    "company_name": "PT China Life Insurance Indonesia",
+    "source_page_url": "https://www.chinalife.co.id/id/public-disclosure",
+    "discovered_page_url": "https://www.chinalife.co.id/id/public-disclosure",
+    "pdf_url": "https://www.chinalife.co.id/sites/default/files/2026-04/Monthly%20Financial%20Statement%20-%20Mar%202026%20%28IND%29.pdf",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_china_life_insurance_indonesia/pt_china_life_insurance_indonesia_2026-04.pdf",
+    "status": "dry_run",
+    "reason": "dry-run mode",
+    "timestamp": "2026-04-29T20:21:31+07:00"
+  }
+]

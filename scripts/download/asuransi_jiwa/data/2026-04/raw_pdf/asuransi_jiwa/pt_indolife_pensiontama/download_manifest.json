@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_indolife_pensiontama",
+    "company_name": "PT Indolife Pensiontama",
+    "source_page_url": "https://indolife.co.id/Read/Detail/laporan--perusahaan",
+    "discovered_page_url": "https://indolife.co.id/Read/Detail/laporan--perusahaan",
+    "pdf_url": "",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_indolife_pensiontama/pt_indolife_pensiontama_2026-04.pdf",
+    "status": "no_pdf_found",
+    "reason": "no PDF candidates found",
+    "timestamp": "2026-04-29T20:22:06+07:00"
+  }
+]

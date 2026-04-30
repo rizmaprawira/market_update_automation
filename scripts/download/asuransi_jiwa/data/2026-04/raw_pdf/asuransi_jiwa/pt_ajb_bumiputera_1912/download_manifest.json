@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_ajb_bumiputera_1912",
+    "company_name": "AJB Bumiputera 1912",
+    "source_page_url": "https://www.bumiputera.com/listdocument/document/our_company/financial_report/0/15/0/1",
+    "discovered_page_url": "https://www.bumiputera.com/listdocument/document/our_company/financial_report/0/15/0/1",
+    "pdf_url": "",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_ajb_bumiputera_1912/pt_ajb_bumiputera_1912_2026-04.pdf",
+    "status": "no_pdf_found",
+    "reason": "no PDF candidates found",
+    "timestamp": "2026-04-29T20:19:07+07:00"
+  }
+]

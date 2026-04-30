@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_great_eastern_life_indonesia",
+    "company_name": "PT Great Eastern Life Indonesia",
+    "source_page_url": "https://www.greateasternlife.com/id/in/tentang-kami/pusat-media/laporan-tahunan.html",
+    "discovered_page_url": "https://www.greateasternlife.com/id/in/tentang-kami/pusat-media/laporan-tahunan.html",
+    "pdf_url": "https://www.greateasternlife.com/content/dam/dmassets/great-eastern/indonesia/gel-id/tentang-kami/pusat-media/annual-report/financial-reports/geli-mktg-tk-pm-laporan-keu-konven-aug2025.pdf",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_great_eastern_life_indonesia/pt_great_eastern_life_indonesia_2026-04.pdf",
+    "status": "dry_run",
+    "reason": "dry-run mode",
+    "timestamp": "2026-04-29T20:21:48+07:00"
+  }
+]

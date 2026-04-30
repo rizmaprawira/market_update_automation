@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_axa_financial_indonesia",
+    "company_name": "PT AXA Financial Indonesia",
+    "source_page_url": "https://www.axa.co.id/laporan-tahunan-afi",
+    "discovered_page_url": "https://www.axa.co.id/laporan-tahunan-afi",
+    "pdf_url": "",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_axa_financial_indonesia/pt_axa_financial_indonesia_2026-04.pdf",
+    "status": "no_pdf_found",
+    "reason": "no PDF candidates found",
+    "timestamp": "2026-04-29T20:21:21+07:00"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_victoria_alife_indonesia",
+    "company_name": "PT Victoria Alife Indonesia",
+    "source_page_url": "https://www.victorialife.co.id/layanan-kami/",
+    "discovered_page_url": "https://www.victorialife.co.id/layanan-kami/",
+    "pdf_url": "https://www.victorialife.co.id/wp-content/uploads/2026/04/Laporan-keuangan-Vlife-Maret-2026.pdf",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_victoria_alife_indonesia/pt_victoria_alife_indonesia_2026-04.pdf",
+    "status": "dry_run",
+    "reason": "dry-run mode",
+    "timestamp": "2026-04-29T20:24:00+07:00"
+  }
+]

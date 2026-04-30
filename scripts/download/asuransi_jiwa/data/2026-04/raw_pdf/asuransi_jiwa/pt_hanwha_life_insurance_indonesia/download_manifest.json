@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_hanwha_life_insurance_indonesia",
+    "company_name": "PT Hanwha Life Insurance Indonesia",
+    "source_page_url": "https://www.hanwhalife.co.id/laporan-keuangan/",
+    "discovered_page_url": "https://www.hanwhalife.co.id/laporan-keuangan/",
+    "pdf_url": "",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_hanwha_life_insurance_indonesia/pt_hanwha_life_insurance_indonesia_2026-04.pdf",
+    "status": "no_pdf_found",
+    "reason": "no PDF candidates found",
+    "timestamp": "2026-04-29T20:21:57+07:00"
+  }
+]

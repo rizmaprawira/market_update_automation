@@ -1,0 +1,49 @@
+company_id,status,reason,returncode
+pt_ajb_bumiputera_1912,no_pdf,No PDF found,0
+pt_aia_financial,no_pdf,No PDF found,0
+pt_asuransi_bri_life,dry_run,Dry-run (PDF found),0
+pt_asuransi_allianz_life_indonesia,dry_run,Dry-run (PDF found),0
+pt_asuransi_jiwa_astra,no_pdf,No PDF found,0
+pt_asuransi_ciputra_indonesia,dry_run,Dry-run (PDF found),0
+pt_asuransi_jiwa_bca,no_pdf,No PDF found,0
+pt_asuransi_jiwa_central_asia_raya,no_pdf,No PDF found,0
+pt_asuransi_jiwa_generali_indonesia,dry_run,Dry-run (PDF found),0
+pt_asuransi_jiwa_ifg,no_pdf,No PDF found,0
+pt_asuransi_jiwa_mandiri_inhealth_indonesia,no_pdf,No PDF found,0
+pt_asuransi_jiwa_manulife_indonesia,no_pdf,No PDF found,0
+pt_asuransi_jiwa_nasional,dry_run,Dry-run (PDF found),0
+pt_asuransi_jiwa_sealnsure,no_pdf,No PDF found,0
+pt_asuransi_jiwa_reliance_indonesia,no_pdf,No PDF found,0
+pt_asuransi_jiwa_sequis_financial,no_pdf,No PDF found,0
+pt_asuransi_jiwa_sequis_life,no_pdf,No PDF found,0
+pt_asuransi_jiwa_taspen,dry_run,Dry-run (PDF found),0
+pt_asuransi_jiwa_starinvestama,timeout,Script timeout,124
+pt_asuransi_simas_jiwa,no_pdf,No PDF found,0
+pt_asuransi_jiwa_teguh_pelita_pelindung,timeout,Script timeout,124
+pt_avrist_assurance,no_pdf,No PDF found,0
+pt_axa_mandiri_financial_services,dry_run,Dry-run (PDF found),0
+pt_axa_financial_indonesia,no_pdf,No PDF found,0
+pt_bhinneka_life_indonesia,no_pdf,No PDF found,0
+pt_capital_life_indonesia,dry_run,Dry-run (PDF found),0
+pt_bni_life_insurance,no_pdf,No PDF found,0
+pt_china_life_insurance_indonesia,dry_run,Dry-run (PDF found),0
+pt_chubb_life_insurance,dry_run,Dry-run (PDF found),0
+pt_central_asia_financial__jagadiri_,no_pdf,No PDF found,0
+pt_fwd_insurance_indonesia,dry_run,Dry-run (PDF found),0
+pt_great_eastern_life_indonesia,dry_run,Dry-run (PDF found),0
+pt_hanwha_life_insurance_indonesia,no_pdf,No PDF found,0
+pt_equity_life_indonesia,no_pdf,No PDF found,0
+pt_indolife_pensiontama,no_pdf,No PDF found,0
+pt_lippo_life_assurance,no_pdf,No PDF found,0
+pt_mnc_life_assurance,no_pdf,No PDF found,0
+pt_msig_life_insurance_indonesia_tbk,no_pdf,No PDF found,0
+pt_heksa_solution_insurance,no_pdf,No PDF found,0
+pt_panin_dai-chi_life,no_pdf,No PDF found,0
+pt_perta_life_insurance,no_pdf,No PDF found,0
+pt_pacific_life_insurance,timeout,Script timeout,124
+pt_prudential_life_assurance,no_pdf,No PDF found,0
+pt_pfi_mega_life_insurance,no_pdf,No PDF found,0
+pt_sun_life_financial_indonesia,no_pdf,No PDF found,0
+pt_victoria_alife_indonesia,dry_run,Dry-run (PDF found),0
+pt_tokio_marine_life_insurance_indonesia,dry_run,Dry-run (PDF found),0
+pt_zurich_topas_life,no_pdf,No PDF found,0

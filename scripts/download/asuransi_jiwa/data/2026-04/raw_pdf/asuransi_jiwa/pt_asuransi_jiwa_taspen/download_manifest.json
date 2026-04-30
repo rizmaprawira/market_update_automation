@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_asuransi_jiwa_taspen",
+    "company_name": "PT Asuransi Jiwa Taspen",
+    "source_page_url": "https://www.taspenlife.com/about?tab=laporan",
+    "discovered_page_url": "https://www.taspenlife.com/about?tab=laporan",
+    "pdf_url": "https://www.taspenlife.com/assets/uploads/LAPORAN_PUBLIKASI_BULAN_Maret_2026_-_Kirim.pdf",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_asuransi_jiwa_taspen/pt_asuransi_jiwa_taspen_2026-04.pdf",
+    "status": "dry_run",
+    "reason": "dry-run mode",
+    "timestamp": "2026-04-29T20:20:01+07:00"
+  }
+]

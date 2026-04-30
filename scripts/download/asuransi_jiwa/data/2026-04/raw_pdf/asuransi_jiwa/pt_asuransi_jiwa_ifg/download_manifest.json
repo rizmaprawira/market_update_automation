@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_asuransi_jiwa_ifg",
+    "company_name": "PT Asuransi Jiwa IFG",
+    "source_page_url": "https://ifg-life.id/about?propKey=report&subValue=&optional=",
+    "discovered_page_url": "https://ifg-life.id/about?propKey=report&subValue=&optional=",
+    "pdf_url": "",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_asuransi_jiwa_ifg/pt_asuransi_jiwa_ifg_2026-04.pdf",
+    "status": "no_pdf_found",
+    "reason": "no PDF candidates found",
+    "timestamp": "2026-04-29T20:19:33+07:00"
+  }
+]

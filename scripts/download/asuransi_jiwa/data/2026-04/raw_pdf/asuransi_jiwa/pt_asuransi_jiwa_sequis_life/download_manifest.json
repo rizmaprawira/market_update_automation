@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_asuransi_jiwa_sequis_life",
+    "company_name": "PT Asuransi Jiwa Sequis Life",
+    "source_page_url": "https://www.sequis.co.id/id/tentang-sequis/life/laporan-perusahaan",
+    "discovered_page_url": "https://www.sequis.co.id/id/tentang-sequis/life/laporan-perusahaan",
+    "pdf_url": "",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_asuransi_jiwa_sequis_life/pt_asuransi_jiwa_sequis_life_2026-04.pdf",
+    "status": "no_pdf_found",
+    "reason": "no PDF candidates found",
+    "timestamp": "2026-04-29T20:19:54+07:00"
+  }
+]

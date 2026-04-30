@@ -1,0 +1,2 @@
+category,company_id,company_name,source_page_url,discovered_page_url,pdf_url,target_year,target_month,output_path,status,reason,discovery_method,score,candidate_count,http_status,file_size_bytes,timestamp
+asuransi_jiwa,pt_asuransi_jiwa_starinvestama,PT Asuransi Jiwa Starinvestama,https://www.starinvestama.co.id/laporan_keuangan.html,https://www.starinvestama.co.id/laporan_keuangan.html,,2026,4,data/2026-04/raw_pdf/asuransi_jiwa/pt_asuransi_jiwa_starinvestama/pt_asuransi_jiwa_starinvestama_2026-04.pdf,no_pdf_found,no PDF candidates found,,,,,,2026-04-29T20:17:38+07:00

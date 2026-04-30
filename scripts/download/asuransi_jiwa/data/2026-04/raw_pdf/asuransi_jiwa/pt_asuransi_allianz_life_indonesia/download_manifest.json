@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_asuransi_allianz_life_indonesia",
+    "company_name": "PT Asuransi Allianz Life Indonesia",
+    "source_page_url": "https://www.allianz.co.id/tentang-kami/finansial.html",
+    "discovered_page_url": "https://www.allianz.co.id/tentang-kami/finansial.html",
+    "pdf_url": "https://www.allianz.co.id/content/dam/onemarketing/azli/wwwallianzcoid/tentang-kami/finansial/laporan-keuangan-konven/laporan-keuangan-2026/maret/laporan-keuangan-bulanan-maret-2026-life-konvensional.pdf",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_asuransi_allianz_life_indonesia/pt_asuransi_allianz_life_indonesia_2026-04.pdf",
+    "status": "already_exists",
+    "reason": "file exists",
+    "timestamp": "2026-04-29T20:21:17+07:00"
+  }
+]

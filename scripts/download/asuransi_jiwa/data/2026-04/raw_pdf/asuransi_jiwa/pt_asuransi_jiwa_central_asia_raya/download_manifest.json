@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_asuransi_jiwa_central_asia_raya",
+    "company_name": "PT Asuransi Jiwa Central Asia Raya",
+    "source_page_url": "https://www.car.co.id/tentang-kami/informasi-umum/laporan-keuangan/",
+    "discovered_page_url": "https://www.car.co.id/tentang-kami/informasi-umum/laporan-keuangan/",
+    "pdf_url": "",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_asuransi_jiwa_central_asia_raya/pt_asuransi_jiwa_central_asia_raya_2026-04.pdf",
+    "status": "no_pdf_found",
+    "reason": "no PDF candidates found",
+    "timestamp": "2026-04-29T20:19:28+07:00"
+  }
+]

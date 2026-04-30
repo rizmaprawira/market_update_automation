@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_zurich_topas_life",
+    "company_name": "PT Zurich Topas Life",
+    "source_page_url": "https://www.zurich.co.id/en/tentang-kami/zurich-topas-life/informasi-investor",
+    "discovered_page_url": "https://www.zurich.co.id/en/tentang-kami/zurich-topas-life/informasi-investor",
+    "pdf_url": "",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_zurich_topas_life/pt_zurich_topas_life_2026-04.pdf",
+    "status": "no_pdf_found",
+    "reason": "no PDF candidates found",
+    "timestamp": "2026-04-29T20:24:06+07:00"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_chubb_life_insurance",
+    "company_name": "PT Chubb Life Insurance",
+    "source_page_url": "https://www.chubb.com/id-id/about-chubb/pt-chubb-life-insurance-indonesia-financial-report.html",
+    "discovered_page_url": "https://www.chubb.com/id-id/about-chubb/pt-chubb-life-insurance-indonesia-financial-report.html",
+    "pdf_url": "https://www.chubb.com/content/dam/chubb-sites/chubb-com/about-chubb/pt-chubb-life-insurance-indonesia-financial-report/documents/pdf/pt-chubb-life-insurance-indonesia-laporan-publikasi-keuangan-syariah-april-2025.pdf",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_chubb_life_insurance/pt_chubb_life_insurance_2026-04.pdf",
+    "status": "dry_run",
+    "reason": "dry-run mode",
+    "timestamp": "2026-04-29T20:21:33+07:00"
+  }
+]

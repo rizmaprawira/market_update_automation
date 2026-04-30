@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_asuransi_ciputra_indonesia",
+    "company_name": "PT Asuransi Ciputra Indonesia",
+    "source_page_url": "https://www.ciputralife.com/tentang-kami",
+    "discovered_page_url": "https://www.ciputralife.com/tentang-kami",
+    "pdf_url": "https://www.ciputralife.com/public/documents/Lap. Keuangan Maret 2026.pdf",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_asuransi_ciputra_indonesia/pt_asuransi_ciputra_indonesia_2026-04.pdf",
+    "status": "dry_run",
+    "reason": "dry-run mode",
+    "timestamp": "2026-04-29T20:19:20+07:00"
+  }
+]

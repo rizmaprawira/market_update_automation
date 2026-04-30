@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_tokio_marine_life_insurance_indonesia",
+    "company_name": "PT Tokio Marine Life Insurance Indonesia",
+    "source_page_url": "https://www.tokiomarine.com/id/id/life/about-us/financial-information.html",
+    "discovered_page_url": "https://www.tokiomarine.com/id/id/life/about-us/financial-information.html",
+    "pdf_url": "https://www.tokiomarine.com/content/dam/tokiomarine/indonesia/life/about-us/financial%20information/Bahasa/2026/Laporan%20Keuangan%20Konvensional%20-%20Maret.pdf",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_tokio_marine_life_insurance_indonesia/pt_tokio_marine_life_insurance_indonesia_2026-04.pdf",
+    "status": "dry_run",
+    "reason": "dry-run mode",
+    "timestamp": "2026-04-29T20:24:01+07:00"
+  }
+]

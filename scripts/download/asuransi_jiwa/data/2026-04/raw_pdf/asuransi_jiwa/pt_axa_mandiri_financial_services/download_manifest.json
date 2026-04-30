@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_axa_mandiri_financial_services",
+    "company_name": "PT AXA Mandiri Financial Services",
+    "source_page_url": "https://www.axa-mandiri.co.id/laporan-keuangan-detail",
+    "discovered_page_url": "https://www.axa-mandiri.co.id/laporan-keuangan-detail",
+    "pdf_url": "https://www.axa-mandiri.co.id/documents/1415637/1772012764/Market-Update-28-April-2026.pdf?download=true",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_axa_mandiri_financial_services/pt_axa_mandiri_financial_services_2026-04.pdf",
+    "status": "dry_run",
+    "reason": "dry-run mode",
+    "timestamp": "2026-04-29T20:21:20+07:00"
+  }
+]

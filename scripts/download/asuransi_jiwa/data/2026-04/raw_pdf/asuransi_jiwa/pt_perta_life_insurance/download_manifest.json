@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_perta_life_insurance",
+    "company_name": "PT Perta Life Insurance",
+    "source_page_url": "https://pertalife.com/web/laporan-keuangan-1",
+    "discovered_page_url": "https://pertalife.com/web/laporan-keuangan-1",
+    "pdf_url": "",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_perta_life_insurance/pt_perta_life_insurance_2026-04.pdf",
+    "status": "no_pdf_found",
+    "reason": "no PDF candidates found",
+    "timestamp": "2026-04-29T20:23:46+07:00"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "category": "asuransi_jiwa",
+    "company_id": "pt_capital_life_indonesia",
+    "company_name": "PT Capital Life Indonesia",
+    "source_page_url": "https://www.capitallife.co.id/laporan",
+    "discovered_page_url": "https://www.capitallife.co.id/laporan",
+    "pdf_url": "https://www.capitallife.co.id/public/fileuploadmaster/1773396986_666486a09838e9d00f79.pdf",
+    "target_year": 2026,
+    "target_month": 4,
+    "output_path": "data/2026-04/raw_pdf/asuransi_jiwa/pt_capital_life_indonesia/pt_capital_life_indonesia_2026-04.pdf",
+    "status": "dry_run",
+    "reason": "dry-run mode",
+    "timestamp": "2026-04-29T20:21:28+07:00"
+  }
+]

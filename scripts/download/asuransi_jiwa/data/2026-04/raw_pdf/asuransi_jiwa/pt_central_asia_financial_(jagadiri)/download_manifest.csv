@@ -1,0 +1,2 @@
+category,company_id,company_name,source_page_url,discovered_page_url,pdf_url,target_year,target_month,output_path,status,reason,discovery_method,score,candidate_count,http_status,file_size_bytes,timestamp
+asuransi_jiwa,pt_central_asia_financial_(jagadiri),PT Central Asia Financial (JAGADIRI),https://jagadiri.co.id/laporan-keuangan,https://jagadiri.co.id/laporan-keuangan,,2026,4,data/2026-04/raw_pdf/asuransi_jiwa/pt_central_asia_financial_(jagadiri)/pt_central_asia_financial_(jagadiri)_2026-04.pdf,no_pdf_found,no PDF candidates found,,,,,,2026-04-29T20:21:35+07:00
