@@ -43,7 +43,7 @@ except ImportError:  # pragma: no cover - browser fallback is optional.
 
 LOGGER = logging.getLogger("download_tugure_report")
 
-SOURCE_URL = "https://www.tugure.id/id/financial/financial-report"
+SOURCE_URL = "https://www.tugure.id/id/financial/monthly"
 COMPANY_ID = "tugure"
 COMPANY_NAME = "PT Tugu Reasuransi Indonesia"
 CATEGORY = "reasuransi"
