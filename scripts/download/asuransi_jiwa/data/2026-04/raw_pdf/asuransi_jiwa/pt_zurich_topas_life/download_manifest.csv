@@ -1,2 +1,0 @@
-category,company_id,company_name,source_page_url,discovered_page_url,pdf_url,target_year,target_month,output_path,status,reason,discovery_method,score,candidate_count,http_status,file_size_bytes,timestamp
-asuransi_jiwa,pt_zurich_topas_life,PT Zurich Topas Life,https://www.zurich.co.id/en/tentang-kami/zurich-topas-life/informasi-investor,https://www.zurich.co.id/en/tentang-kami/zurich-topas-life/informasi-investor,,2026,4,data/2026-04/raw_pdf/asuransi_jiwa/pt_zurich_topas_life/pt_zurich_topas_life_2026-04.pdf,no_pdf_found,no PDF candidates found,,,,,,2026-04-29T20:24:06+07:00

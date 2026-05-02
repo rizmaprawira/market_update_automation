@@ -1,2 +1,0 @@
-category,company_name,source_page_url,target_year,target_month,pdf_url,output_path,status,reason,file_size_bytes,timestamp
-reasuransi,PT Reasuransi Nasional Indonesia,https://nasionalre.id/laporan-tahunan,2024,3,https://nasionalre.id/galeri_laporan_tahunan/20240417183455.pdf,data/2024-03/raw_pdf/reasuransi/nasre/nasre_2024_03.pdf,downloaded,,234114,2026-04-28T10:46:56.302309+07:00

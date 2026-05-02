@@ -1,10 +1,10 @@
-"""Convert PT Reasuransi Nasional Indonesia (NASRE) monthly PDF to Excel.
+"""Convert PT Orion Reasuransi Indonesia monthly PDF to Excel.
 
 Usage:
-    conda run -n market_update python scripts/convert_to_excel/reinsurance/convert_nasre.py
+    conda run -n market_update python scripts/convert_to_excel/reinsurance/convert_orionre.py
 
-Input:  data/2026-03/raw_pdf/reasuransi/nasre/nasre_2026_03.pdf
-Output: data/2026-03/raw_excel/reasuransi/nasre/nasre_2026-03.xlsx
+Input:  data/2026-03/raw_pdf/reasuransi/orionre/orionre_2026-03.pdf
+Output: data/2026-03/raw_excel/reasuransi/orionre/orionre_2026-03.xlsx
 """
 from __future__ import annotations
 
@@ -17,29 +17,29 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
-PDF_PATH = PROJECT_ROOT / "data/2026-03/raw_pdf/reasuransi/nasre/nasre_2026_03.pdf"
-OUT_PATH = PROJECT_ROOT / "data/2026-03/raw_excel/reasuransi/nasre/nasre_2026-03.xlsx"
+PDF_PATH = PROJECT_ROOT / "data/2026-03/raw_pdf/reasuransi/orionre/orionre_2026-03.pdf"
+OUT_PATH = PROJECT_ROOT / "data/2026-03/raw_excel/reasuransi/orionre/orionre_2026-03.xlsx"
 
-CONTENT_START_Y = 170.0
+CONTENT_START_Y = 130.0
 ROW_CLUSTER_TOL = 0.75
 
 BODY_COLS = ("B", "C", "D", "F", "G", "H", "J", "K", "L", "N", "O", "P")
 VALUE_COLS = {"C", "D", "G", "H", "K", "L", "O", "P"}
 
-# A4 landscape (841.8 × 595.2). Calibrated from 2026-03 PDF.
-# B < 155: labels; C 155-183: asset year-1; D 183-210: asset year-2;
-# F 210-293: liab labels; G 293-320: liab year-1; H 320-354: liab year-2;
-# J 354-535: income labels; K 535-563: income year-1; L 563-598: income year-2;
-# N 598-750: ratio labels; O 750-775: ratio year-1; P 775+: ratio year-2.
-X_THRESHOLDS = (155, 183, 210, 293, 320, 354, 535, 563, 598, 750, 775)
+# A4 landscape (841.68 × 595.2). Calibrated from 2026-03 PDF.
+# B < 200: labels; C 200-230: asset year-1; D 230-250: asset year-2;
+# F 250-380: liab labels; G 380-410: liab year-1; H 410-440: liab year-2;
+# J 440-560: income labels; K 560-590: income year-1; L 590-625: income year-2;
+# N 625-730: ratio labels; O 730-762: ratio year-1; P 762+: ratio year-2.
+X_THRESHOLDS = (200, 230, 250, 380, 410, 440, 560, 590, 615, 730, 762)
 
 BOLD_TOKENS = (
-    "JUMLAH", "TOTAL", "LABA", "KOMISARIS", "DIREKSI",
-    "PEMILIK PERUSAHAAN", "ANAK PERUSAHAAN", "REASURADUR UTAMA",
-    "KETERANGAN", "CATATAN", "SOLVABILITAS", "INVESTASI",
+    "JUMLAH", "TOTAL", "LABA", "INVESTASI", "BUKAN INVESTASI",
+    "KOMISARIS", "DIREKSI", "PEMILIK PERUSAHAAN", "ANAK PERUSAHAAN",
+    "REASURADUR UTAMA", "KETERANGAN", "CATATAN", "SOLVABILITAS",
 )
 CENTER_TOKENS = (
-    "KETERANGAN", "SOLVABILITAS", "PENCAPAIAN", "RASIO",
+    "KETERANGAN", "SOLVABILITAS", "RASIO", "PEMENUHAN",
     "KOMISARIS DAN DIREKSI", "DEWAN KOMISARIS", "DIREKSI",
     "PEMILIK PERUSAHAAN", "ANAK PERUSAHAAN", "REASURADUR UTAMA",
     "CATATAN",
@@ -104,7 +104,7 @@ def main() -> None:
 
     wb = Workbook()
     ws = wb.active
-    ws.title = "nasre"
+    ws.title = "orionre"
     ws.sheet_view.showGridLines = False
     ws.sheet_view.zoomScale = 70
     ws.page_setup.orientation = "landscape"
@@ -120,16 +120,15 @@ def main() -> None:
     ws.page_margins.footer = 0.1
 
     col_widths = {
-        "A": 4.0, "B": 28.5, "C": 12.0, "D": 12.0, "E": 2.0,
-        "F": 26.0, "G": 12.0, "H": 12.0, "I": 2.0,
-        "J": 32.0, "K": 12.0, "L": 12.0, "M": 2.0,
-        "N": 33.0, "O": 12.0, "P": 12.0,
+        "A": 4.0, "B": 29.0, "C": 12.0, "D": 12.0, "E": 2.0,
+        "F": 27.0, "G": 12.0, "H": 12.0, "I": 2.0,
+        "J": 31.0, "K": 12.0, "L": 12.0, "M": 2.0,
+        "N": 31.0, "O": 12.0, "P": 12.0,
     }
     for col, w in col_widths.items():
         ws.column_dimensions[col].width = w
 
     f_title = Font(name="Times New Roman", size=13, bold=True)
-    f_small = Font(name="Times New Roman", size=8)
     f_report = Font(name="Times New Roman", size=12, bold=True)
     f_period = Font(name="Times New Roman", size=9, bold=True)
     f_section = Font(name="Times New Roman", size=7, bold=True, color="FFFFFF")
@@ -147,25 +146,16 @@ def main() -> None:
     b_thin = Border(left=thin, right=thin, top=thin, bottom=thin)
     b_box = Border(left=medium, right=medium, top=medium, bottom=medium)
 
-    fill_section = PatternFill("solid", fgColor="1F3763")  # dark blue
-    fill_header = PatternFill("solid", fgColor="D9E2F3")
-    fill_year = PatternFill("solid", fgColor="EEF3FB")
+    fill_section = PatternFill("solid", fgColor="1F4E85")  # blue
+    fill_header = PatternFill("solid", fgColor="D9EEF3")
+    fill_year = PatternFill("solid", fgColor="EEF6FC")
     fill_subtle = PatternFill("solid", fgColor="F2F2F2")
 
-    for rng in ["A1:P1", "A2:P2", "A3:P3", "A4:P4", "A5:P5", "A6:P6"]:
+    for rng in ["A1:P1", "A5:P5", "A6:P6"]:
         ws.merge_cells(rng)
-    ws["A1"] = "PT REASURANSI NASIONAL INDONESIA"
+    ws["A1"] = "PT ORION REASURANSI INDONESIA"
     style(ws["A1"], font=f_title, align=a_ctr)
     ws.row_dimensions[1].height = 18
-    ws["A2"] = "Jl. Cikini Raya No. 99, Jakarta 10330 - Indonesia"
-    style(ws["A2"], font=f_small, align=a_ctr)
-    ws.row_dimensions[2].height = 13
-    ws["A3"] = "P.O. Box 1618 JKP 10016 Telp. (62-21) 80642500 (Hunting)"
-    style(ws["A3"], font=f_small, align=a_ctr)
-    ws.row_dimensions[3].height = 13
-    ws["A4"] = "Email : nasionalre@nasionalre.co.id  -  http://www.nasionalre.id"
-    style(ws["A4"], font=f_small, align=a_ctr)
-    ws.row_dimensions[4].height = 13
     ws["A5"] = "LAPORAN KEUANGAN"
     style(ws["A5"], font=f_report, align=a_ctr)
     ws.row_dimensions[5].height = 18
@@ -175,9 +165,9 @@ def main() -> None:
 
     for rng in ["A7:D9", "J7:L9", "N7:P9"]:
         ws.merge_cells(rng)
-    ws["A7"] = "LAPORAN POSISI KEUANGAN (NERACA)\nPER 31 MARET 2026 DAN 2025\n(Dalam Jutaan Rupiah)"
-    ws["J7"] = "LAPORAN LABA RUGI KOMPREHENSIF\nUntuk Tahun yang Berakhir pada Tanggal 31 Maret 2026 dan 2025\n(Dalam Jutaan Rupiah)"
-    ws["N7"] = "TINGKAT KESEHATAN KEUANGAN\nPER 31 MARET 2026 DAN 2025\n(Dalam Jutaan Rupiah)"
+    ws["A7"] = "LAPORAN POSISI KEUANGAN\n(dalam jutaan rupiah)"
+    ws["J7"] = "LAPORAN LABA RUGI KOMPREHENSIF\n(dalam jutaan rupiah)"
+    ws["N7"] = "RASIO KESEHATAN KEUANGAN\n(dalam jutaan rupiah)"
     for ref in ("A7", "J7", "N7"):
         style(ws[ref], font=f_section, fill=fill_section, align=a_ctr, border=b_box)
     ws.row_dimensions[7].height = 17
@@ -188,17 +178,17 @@ def main() -> None:
         ws.merge_cells(rng)
     ws["A10"] = "ASET"
     ws["F10"] = "LIABILITAS DAN EKUITAS"
-    ws["J10"] = "U R A I A N"
-    ws["N10"] = "KETERANGAN"
+    ws["J10"] = "URAIAN"
+    ws["N10"] = "URAIAN"
     for ref in ("A10", "F10", "J10", "N10"):
         style(ws[ref], font=f_table, fill=fill_header, align=a_ctr, border=b_thin)
     ws.row_dimensions[10].height = 18
 
     year_labels = {
-        "C11": "Mar-26", "D11": "Mar-25",
-        "G11": "Mar-26", "H11": "Mar-25",
-        "K11": "Mar-26", "L11": "Mar-25",
-        "O11": "Mar-26", "P11": "Mar-25",
+        "C11": "2026", "D11": "2025",
+        "G11": "2026", "H11": "2025",
+        "K11": "2026", "L11": "2025",
+        "O11": "2026", "P11": "2025",
     }
     for ref, text in year_labels.items():
         ws[ref] = text

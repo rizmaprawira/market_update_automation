@@ -1,2 +1,0 @@
-category,company_name,source_page_url,target_year,target_month,pdf_url,output_path,status,reason,file_size_bytes,timestamp
-reasuransi,PT Maskapai Reasuransi Indonesia Tbk.,https://marein-re.com/keuangan/searchLaporanKeuangan,2024,3,https://marein-re.com/public/uploads/finance_report/file/LK_Publikasi_Marein_Maret_2024.pdf,data/2024-03/raw_pdf/reasuransi/marein/marein_2024_03.pdf,downloaded,,388833,2026-04-28T10:46:44.492564+07:00

@@ -23,6 +23,34 @@ reinsurance:
     report_format: pdf
     converter: convert_nasre
 
+  - id: inare
+    name: Indoperkasa Suksesjaya Reasuransi
+    short_name: InARe
+    source_url: ""
+    report_format: pdf
+    converter: convert_inare
+
+  - id: marein
+    name: Maskapai Reasuransi Indonesia
+    short_name: MaRein
+    source_url: ""
+    report_format: pdf
+    converter: convert_marein
+
+  - id: orionre
+    name: Reasuransi Internasional Indonesia
+    short_name: OrionRe
+    source_url: ""
+    report_format: pdf
+    converter: convert_orionre
+
+  - id: tugure
+    name: Tugu Reasuransi Indonesia
+    short_name: TuguRe
+    source_url: ""
+    report_format: pdf
+    converter: convert_tugure
+
 general_insurance:
   - id: company_x
     name: Company X
