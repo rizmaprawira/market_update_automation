@@ -1,6 +1,7 @@
 company_id: tugure
 sheet_name: tugure
 pdf_period_sep: "-"   # filename: tugure_2026-03.pdf
+thousands_sep: ","    # PDF uses US comma-separated thousands
 
 content_start_y: 168.0
 row_cluster_tol: 0.75
@@ -88,3 +89,10 @@ year_labels:
     L11: prior
     O11: current
     P11: prior
+
+bottom_section:
+  komisaris_col: B
+  pemilik_col: F
+  reasuransi_col: J
+  reasuransi_pct_col: L
+  jakarta_col: N

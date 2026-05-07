@@ -1,6 +1,7 @@
 company_id: inare
 sheet_name: inare
 pdf_period_sep: "-"   # filename: inare_2026-03.pdf
+thousands_sep: ","    # PDF uses US comma-separated thousands
 
 content_start_y: 190.0
 row_cluster_tol: 0.75
@@ -88,3 +89,11 @@ year_labels:
     L11: prior
     O11: current
     P11: prior
+
+bottom_section:
+  komisaris_col: B
+  pemilik_col: B
+  reasuransi_col: F
+  reasuransi_pct_col: H
+  reasuransi_default_zone: luar   # inare has only foreign reinsurers
+  jakarta_col: N

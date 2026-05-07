@@ -20,7 +20,7 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common.path_utils import load_current_period, resolve_path
 from common.pdf_extractor import extract_pdf_rows
-from common.template_writer import save_workbook
+from common.template_filler import fill_template
 
 COMPANY_ID = "marein"
 SEGMENT    = "reasuransi"
@@ -45,7 +45,7 @@ def main() -> None:
         raise FileNotFoundError(f"PDF not found: {pdf_path}")
 
     rows = extract_pdf_rows(pdf_path, _CONFIG)
-    save_workbook(rows, _CONFIG, period, out_path)
+    fill_template(rows, _CONFIG, period, out_path)
     print(f"Wrote {out_path}")
 
 

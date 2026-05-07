@@ -1,6 +1,7 @@
 company_id: indonesiare
 sheet_name: indonesiare
 pdf_period_sep: "-"   # filename: indonesiare_2026-03.pdf
+thousands_sep: ","    # PDF uses US comma-separated thousands
 
 content_start_y: 97.0
 row_cluster_tol: 0.75
@@ -88,3 +89,15 @@ year_labels:
     L11: prior
     O11: current
     P11: prior
+
+label_map:
+  assets:
+    "Pemerintah Negara Republik Indonesia": 18  # → "Surat Berharga...Negara RI"
+
+bottom_section:
+  komisaris_col: B
+  pemilik_col: B
+  pemilik_pct_col: D          # "100%" in D column for govt ownership
+  reasuransi_col: F
+  reasuransi_pct_col: G
+  jakarta_col: J

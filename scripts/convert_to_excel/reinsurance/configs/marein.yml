@@ -2,6 +2,25 @@ company_id: marein
 sheet_name: marein
 pdf_period_sep: "_"   # filename: marein_2026_03.pdf
 
+zones:
+  # assets uses default: label=B, current=C, prior=D
+  liabilities:
+    label_col: G      # G11 = "Indonesian Liab. / Liabilitas"
+    val_current: H    # H11 = current year
+    val_prior: J      # J11 = prior year
+  income:
+    label_col: L      # L = long description column
+    val_current: N    # N11 = current
+    val_prior: O      # O11 = prior
+  health: false       # marein PDF has no separate health section; solvabilitas data needs label_map
+
+bottom_section:
+  komisaris_col: G              # G col has "Name Role" format (name before role keyword)
+  pemilik_col: null             # pemilik not clearly parseable in this bilingual layout
+  reasuransi_col: L             # reinsurer names embedded as "N. Name PCT%"
+  reasuransi_default_zone: luar # all marein reinsurers are foreign
+  jakarta_col: L                # "Jakarta, April 2026" appears in L col
+
 content_start_y: 117.0
 row_cluster_tol: 0.8
 x_thresholds: [135, 165, 228, 285, 400, 430, 470, 510, 635, 670, 715]

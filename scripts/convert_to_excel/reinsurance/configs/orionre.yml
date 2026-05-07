@@ -86,3 +86,8 @@ year_labels:
     L11: prior
     O11: current
     P11: prior
+
+bottom_section:
+  komisaris_col: B
+  pemilik_col: B
+  jakarta_col: N
