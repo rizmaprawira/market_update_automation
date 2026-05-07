@@ -1,0 +1,90 @@
+company_id: tugure
+sheet_name: tugure
+pdf_period_sep: "-"   # filename: tugure_2026-03.pdf
+
+content_start_y: 168.0
+row_cluster_tol: 0.75
+x_thresholds: [170, 200, 232, 363, 393, 425, 525, 553, 580, 696, 724]
+body_cols:  [B, C, D, F, G, H, J, K, L, N, O, P]
+value_cols: [C, D, G, H, K, L, O, P]
+bold_tokens:   [JUMLAH, TOTAL, LABA, INVESTASI, BUKAN INVESTASI, KOMISARIS,
+                DIREKSI, PEMILIK PERUSAHAAN, ANAK PERUSAHAAN, REASURADUR UTAMA,
+                KETERANGAN, CATATAN, SOLVABILITAS]
+center_tokens: [KETERANGAN, SOLVABILITAS, PEMENUHAN, PENCAPAIAN, KOMISARIS DAN DIREKSI,
+                DEWAN KOMISARIS, DIREKSI, PEMILIK PERUSAHAAN, ANAK PERUSAHAAN,
+                REASURADUR UTAMA, CATATAN]
+
+page_size: LETTER
+zoom: 75
+margins: {left: 0.2, right: 0.2, top: 0.25, bottom: 0.25, header: 0.1, footer: 0.1}
+row_height_scale: 1.15
+
+col_widths:
+  A: 4.0
+  B: 24.0
+  C: 10.0
+  D: 10.0
+  E: 2.0
+  F: 22.0
+  G: 10.0
+  H: 10.0
+  I: 2.0
+  J: 28.0
+  K: 10.0
+  L: 10.0
+  M: 2.0
+  N: 28.0
+  O: 10.0
+  P: 10.0
+
+colors:
+  section: "000000"
+  header:  "D9D9D9"
+  year:    "EFEFEF"
+  subtle:  "F2F2F2"
+
+period:
+  comparison: prior_year_same_month
+  current_label: "{day}-{month_abbr}-{YEAR2}"
+  prior_label:   "{prior_day}-{prior_month_abbr}-{PRIOR_YEAR2}"
+
+header_rows:
+  1: {text: "PT TUGU REASURANSI INDONESIA",                                                        size: 13, bold: true,  height: 18}
+  2: {text: "Jl. Raden Saleh No. 50 Jakarta 10330",                                                size: 8,               height: 13}
+  3: {text: "Telp: +6221 3140267 (Hunting), Fax: +6221 2303407, Website: www.tugure.id, E-mail: tugure@tugu-re.com", size: 8, height: 13}
+  5: {text: "LAPORAN KEUANGAN BUKAN KONSOLIDASI",                                                  size: 12, bold: true,  height: 18}
+  6: {text: "PER {day} {MONTH_FULL} {YEAR4} DAN {PRIOR_YEAR4}",                                   size: 9,  bold: true,  height: 15}
+
+section_bars:
+  row_heights: [17, 13, 13]
+  items:
+    - range: "A7:D9"
+      text: "LAPORAN POSISI KEUANGAN\n(dalam jutaan rupiah)"
+    - range: "J7:L9"
+      text: "LAPORAN LABA (RUGI) KOMPREHENSIF\n(dalam jutaan rupiah)"
+    - range: "N7:P9"
+      text: "INDIKATOR KESEHATAN KEUANGAN\n(dalam jutaan rupiah)"
+
+col_headers:
+  height: 18
+  items:
+    - range: "A10:D10"
+      text: "ASET"
+    - range: "F10:H10"
+      text: "LIABILITAS DAN EKUITAS"
+    - range: "J10:L10"
+      text: "URAIAN"
+    - range: "N10:P10"
+      text: "Keterangan"
+
+year_labels:
+  height: 15
+  cells:
+    C11: current
+    D11: prior
+    G11: current
+    H11: prior
+    K11: current
+    L11: prior
+    O11: current
+    P11: prior

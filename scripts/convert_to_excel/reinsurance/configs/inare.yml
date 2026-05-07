@@ -1,0 +1,90 @@
+company_id: inare
+sheet_name: inare
+pdf_period_sep: "-"   # filename: inare_2026-03.pdf
+
+content_start_y: 190.0
+row_cluster_tol: 0.75
+x_thresholds: [230, 290, 320, 460, 530, 575, 700, 790, 870, 990, 1095]
+body_cols:  [B, C, D, F, G, H, J, K, L, N, O, P]
+value_cols: [C, D, G, H, K, L, O, P]
+bold_tokens:   [JUMLAH, TOTAL, LABA, INVESTASI, BUKAN INVESTASI, KOMISARIS,
+                DIREKSI, PEMILIK PERUSAHAAN, ANAK PERUSAHAAN, REASURADUR UTAMA,
+                KETERANGAN, CATATAN, SOLVABILITAS]
+center_tokens: [KETERANGAN, SOLVABILITAS, RASIO, INDIKATOR, KOMISARIS DAN DIREKSI,
+                DEWAN KOMISARIS, DIREKSI, PEMILIK PERUSAHAAN, ANAK PERUSAHAAN,
+                REASURADUR UTAMA, CATATAN, INFORMASI]
+
+page_size: A3
+zoom: 55
+margins: {left: 0.2, right: 0.2, top: 0.25, bottom: 0.25, header: 0.1, footer: 0.1}
+row_height_scale: 1.15
+
+col_widths:
+  A: 4.0
+  B: 36.0
+  C: 15.0
+  D: 15.0
+  E: 2.0
+  F: 34.0
+  G: 15.0
+  H: 15.0
+  I: 2.0
+  J: 40.0
+  K: 15.0
+  L: 15.0
+  M: 2.0
+  N: 44.0
+  O: 15.0
+  P: 15.0
+
+colors:
+  section: "5B7B57"
+  header:  "DDEAD7"
+  year:    "EEF5EA"
+  subtle:  "F2F2F2"
+
+period:
+  comparison: prior_year_same_month
+  current_label: "{YEAR4}"
+  prior_label:   "{PRIOR_YEAR4}"
+
+header_rows:
+  1: {text: "PT INDOPERKASA SUKSESJAYA REASURANSI",                                                                        size: 13, bold: true,  height: 18}
+  2: {text: "Kantor Pusat",                                                                                                  size: 8,               height: 13}
+  3: {text: "Plaza Mutiara Lt.21, Jl. Dr. Ide Agung Anak Gde Agung, Kuningan Timur, Setiabudi, Jakarta Selatan 12950",     size: 8,               height: 13}
+  5: {text: "LAPORAN BULANAN",                                                                                               size: 12, bold: true,  height: 18}
+  6: {text: "Per {day} {month_full} {YEAR4} dan {PRIOR_YEAR4}",                                                             size: 9,  bold: true,  height: 15}
+
+section_bars:
+  row_heights: [17, 13, 13]
+  items:
+    - range: "A7:D9"
+      text: "LAPORAN POSISI KEUANGAN\n(dalam jutaan Rupiah)"
+    - range: "J7:L9"
+      text: "LAPORAN LABA (RUGI) KOMPREHENSIF\n(dalam jutaan Rupiah)"
+    - range: "N7:P9"
+      text: "INDIKATOR KESEHATAN KEUANGAN\n(dalam jutaan Rupiah)"
+
+col_headers:
+  height: 18
+  items:
+    - range: "A10:D10"
+      text: "ASET"
+    - range: "F10:H10"
+      text: "LIABILITAS DAN EKUITAS"
+    - range: "J10:L10"
+      text: "URAIAN"
+    - range: "N10:P10"
+      text: "URAIAN"
+
+year_labels:
+  height: 15
+  cells:
+    C11: current
+    D11: prior
+    G11: current
+    H11: prior
+    K11: current
+    L11: prior
+    O11: current
+    P11: prior

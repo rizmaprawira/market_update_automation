@@ -1,0 +1,88 @@
+company_id: orionre
+sheet_name: orionre
+pdf_period_sep: "-"   # filename: orionre_2026-03.pdf
+
+content_start_y: 130.0
+row_cluster_tol: 0.75
+x_thresholds: [200, 230, 250, 380, 410, 440, 560, 590, 615, 730, 762]
+body_cols:  [B, C, D, F, G, H, J, K, L, N, O, P]
+value_cols: [C, D, G, H, K, L, O, P]
+bold_tokens:   [JUMLAH, TOTAL, LABA, INVESTASI, BUKAN INVESTASI, KOMISARIS,
+                DIREKSI, PEMILIK PERUSAHAAN, ANAK PERUSAHAAN, REASURADUR UTAMA,
+                KETERANGAN, CATATAN, SOLVABILITAS]
+center_tokens: [KETERANGAN, SOLVABILITAS, RASIO, PEMENUHAN, KOMISARIS DAN DIREKSI,
+                DEWAN KOMISARIS, DIREKSI, PEMILIK PERUSAHAAN, ANAK PERUSAHAAN,
+                REASURADUR UTAMA, CATATAN]
+
+page_size: LETTER
+zoom: 70
+margins: {left: 0.2, right: 0.2, top: 0.25, bottom: 0.25, header: 0.1, footer: 0.1}
+row_height_scale: 1.15
+
+col_widths:
+  A: 4.0
+  B: 29.0
+  C: 12.0
+  D: 12.0
+  E: 2.0
+  F: 27.0
+  G: 12.0
+  H: 12.0
+  I: 2.0
+  J: 31.0
+  K: 12.0
+  L: 12.0
+  M: 2.0
+  N: 31.0
+  O: 12.0
+  P: 12.0
+
+colors:
+  section: "1F4E85"
+  header:  "D9EEF3"
+  year:    "EEF6FC"
+  subtle:  "F2F2F2"
+
+period:
+  comparison: prior_year_same_month
+  current_label: "{YEAR4}"
+  prior_label:   "{PRIOR_YEAR4}"
+
+header_rows:
+  1: {text: "PT ORION REASURANSI INDONESIA", size: 13, bold: true,  height: 18}
+  5: {text: "LAPORAN KEUANGAN",              size: 12, bold: true,  height: 18}
+  6: {text: "PER {day} {MONTH_FULL} {YEAR4} DAN {PRIOR_YEAR4}", size: 9, bold: true, height: 15}
+
+section_bars:
+  row_heights: [17, 13, 13]
+  items:
+    - range: "A7:D9"
+      text: "LAPORAN POSISI KEUANGAN\n(dalam jutaan rupiah)"
+    - range: "J7:L9"
+      text: "LAPORAN LABA RUGI KOMPREHENSIF\n(dalam jutaan rupiah)"
+    - range: "N7:P9"
+      text: "RASIO KESEHATAN KEUANGAN\n(dalam jutaan rupiah)"
+
+col_headers:
+  height: 18
+  items:
+    - range: "A10:D10"
+      text: "ASET"
+    - range: "F10:H10"
+      text: "LIABILITAS DAN EKUITAS"
+    - range: "J10:L10"
+      text: "URAIAN"
+    - range: "N10:P10"
+      text: "URAIAN"
+
+year_labels:
+  height: 15
+  cells:
+    C11: current
+    D11: prior
+    G11: current
+    H11: prior
+    K11: current
+    L11: prior
+    O11: current
+    P11: prior

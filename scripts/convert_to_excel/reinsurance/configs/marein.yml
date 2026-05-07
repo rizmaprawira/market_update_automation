@@ -1,0 +1,94 @@
+company_id: marein
+sheet_name: marein
+pdf_period_sep: "_"   # filename: marein_2026_03.pdf
+
+content_start_y: 117.0
+row_cluster_tol: 0.8
+x_thresholds: [135, 165, 228, 285, 400, 430, 470, 510, 635, 670, 715]
+body_cols:  [B, C, D, F, G, H, J, K, L, N, O, P]
+value_cols: [C, D, H, J, N, O]
+english_cols: [F, K, P]
+bold_tokens:   [JUMLAH, TOTAL, LABA, RUGI, HASIL, INVESTASI, BUKAN INVESTASI,
+                KOMISARIS, DIREKSI, PEMILIK PERUSAHAAN, REASURADUR UTAMA,
+                KETERANGAN, PENDAPATAN UNDERWRITING, BEBAN UNDERWRITING,
+                "LABA (RUGI)", TOTAL EQUITY, TOTAL LIABILITIES]
+center_tokens: [KETERANGAN, URAIAN, REASURADUR, NAMA REASURADUR, CATATAN]
+
+page_size: A4
+zoom: 60
+margins: {left: 0.18, right: 0.18, top: 0.22, bottom: 0.22, header: 0.08, footer: 0.08}
+row_height_scale: 0.9
+row_height_max: 35.0
+body_font_size: 6.2
+section_font_size: 6.5
+english_font_size: 5.8
+
+col_widths:
+  A: 3.0
+  B: 26.0
+  C: 10.5
+  D: 10.5
+  E: 1.5
+  F: 22.0
+  G: 22.0
+  H: 10.5
+  I: 1.5
+  J: 10.5
+  K: 22.0
+  L: 42.0
+  M: 2.0
+  N: 10.5
+  O: 10.5
+  P: 26.0
+
+colors:
+  section: "1F3763"
+  header:  "D9E2F3"
+  year:    "EEF3FB"
+  subtle:  "F2F2F2"
+  english: "F8F8FF"
+
+period:
+  comparison: prior_year_end
+  current_label: "{day} {month_abbr} {YEAR4}"
+  prior_label:   "{prior_day} {prior_month_abbr} {PRIOR_YEAR4}"
+
+header_rows:
+  1: {text: "RINGKASAN LAPORAN KEUANGAN / FINANCIAL STATEMENTS SUMMARY",                                                            size: 11, bold: true, height: 16}
+  2: {text: "PT MASKAPAI REASURANSI INDONESIA TBK.",                                                                                 size: 11, bold: true, height: 15}
+  3: {text: "LAPORAN BULANAN {day} {MONTH_FULL} {YEAR4} / MONTHLY REPORT {MONTH_EN} {day}, {YEAR4}",                                size: 8,              height: 13}
+  5: {text: "LAPORAN POSISI KEUANGAN / STATEMENTS OF FINANCIAL POSITION",                                                            size: 10, bold: true, height: 18}
+  6: {text: "PER {day} {MONTH_FULL} {YEAR4} DAN {prior_day} {PRIOR_MONTH_FULL} {PRIOR_YEAR4} / AS OF {MONTH_EN} {day}, {YEAR4} AND {PRIOR_MONTH_EN} {prior_day}, {PRIOR_YEAR4}", size: 8, bold: true, height: 15}
+
+section_bars:
+  row_heights: [17, 13, 13]
+  items:
+    - range: "A7:K9"
+      text: "BALANCE SHEET / LAPORAN POSISI KEUANGAN\n(dalam jutaan rupiah / in million rupiah)"
+    - range: "L7:P9"
+      text: "INCOME STATEMENT / LAPORAN LABA RUGI\nUNTUK TAHUN YANG BERAKHIR / FOR THE YEARS ENDED {day} {MONTH_FULL} {YEAR4} DAN {prior_day} {PRIOR_MONTH_FULL} {PRIOR_YEAR4}\n(dalam jutaan rupiah / in million rupiah)"
+
+col_headers:
+  height: 18
+  items:
+    - range: "A10:D10"
+      text: "ASET / ASSETS"
+    - range: "F10:K10"
+      text: "LIABILITAS DAN EKUITAS / LIABILITIES AND EQUITY"
+    - range: "L10:P10"
+      text: "LAPORAN LABA RUGI / INCOME STATEMENT"
+
+year_labels:
+  height: 15
+  cells:
+    C11: current
+    D11: prior
+    H11: current
+    J11: prior
+    N11: current
+    O11: prior
+  static_cells:
+    F11: "Keterangan / Description"
+    G11: "Indonesian Liab. / Liabilitas"
+    K11: "English / Inggris"
+    P11: "Description / Keterangan"
