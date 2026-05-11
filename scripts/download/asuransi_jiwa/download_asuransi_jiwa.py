@@ -5,6 +5,7 @@ import logging
 import subprocess
 import sys
 import time
+import webbrowser
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
@@ -13,6 +14,58 @@ from collections import defaultdict
 LOGGER = logging.getLogger("download_asuransi_jiwa")
 SCRIPT_DIR = Path(__file__).parent
 CATEGORY = "asuransi_jiwa"
+
+# Company ID to source website URL mapping for fallback investigation
+COMPANY_WEBSITES = {
+    "aia_financial": "https://www.aia-financial.co.id/id/about-aia/laporan-penting/report-financial",
+    "ajb_bumiputera_1912": "https://www.bumiputera.com/listdocument/document/our_company/financial_report/0/15/0/1",
+    "asuransi_allianz_life_indonesia": "https://www.allianz.co.id/tentang-kami/finansial.html",
+    "asuransi_bri_life": "https://brilife.co.id/laporan-keuangan",
+    "asuransi_ciputra_indonesia": "https://www.ciputralife.com/tentang-kami",
+    "asuransi_jiwa_astra": "https://www.astralife.co.id/laporan-keuangan/",
+    "asuransi_jiwa_bca": "https://www.bcalife.co.id/tentang-kami/laporan-keuangan",
+    "asuransi_jiwa_central_asia_raya": "https://www.car.co.id/tentang-kami/informasi-umum/laporan-keuangan/",
+    "asuransi_jiwa_generali_indonesia": "https://www.generali.co.id/id/laporan-keuangan",
+    "asuransi_jiwa_ifg": "https://ifg-life.id/about?propKey=report&subValue=&optional=",
+    "asuransi_jiwa_mandiri_inhealth_indonesia": "https://www.inhealth.co.id/id/gcg",
+    "asuransi_jiwa_manulife_indonesia": "https://www.manulife.co.id/id/tentang-kami/laporan-keuangan.html",
+    "asuransi_jiwa_nasional": "https://www.nasionallife.co.id/Financial_Reports.html",
+    "asuransi_jiwa_reliance_indonesia": "https://reliance-life.co.id/keuangan",
+    "asuransi_jiwa_sealnsure": "https://moneeinsure.co.id/about-us/life/statement",
+    "asuransi_jiwa_sequis_financial": "https://www.sequis.co.id/id/tentang-sequis/financial/laporan-perusahaan",
+    "asuransi_jiwa_sequis_life": "https://www.sequis.co.id/id/tentang-sequis/life/laporan-perusahaan",
+    "asuransi_jiwa_starinvestama": "https://www.starinvestama.co.id/laporan_keuangan.html",
+    "asuransi_jiwa_taspen": "https://www.taspenlife.com/about?tab=laporan",
+    "asuransi_jiwa_teguh_pelita_pelindung": "https://equiralife.co.id/id/report/financial",
+    "asuransi_simas_jiwa": "https://about.simasjiwa.co.id/kinerja",
+    "avrist_assurance": "https://www.avrist.com/tentang-avrist-life/tentang-avrist-life?tab=Laporan+Perusahaan",
+    "axa_financial_indonesia": "https://www.axa.co.id/laporan-tahunan-afi",
+    "axa_mandiri_financial_services": "https://www.axa-mandiri.co.id/laporan-keuangan-detail",
+    "bhinneka_life_indonesia": "https://www.bhinnekalife.com/id/laporan-keuangan",
+    "bni_life_insurance": "https://www.bni-life.co.id/id/laporan_perusahaan",
+    "capital_life_indonesia": "https://www.capitallife.co.id/laporan",
+    "central_asia_financial__jagadiri_": "https://jagadiri.co.id/laporan-keuangan",
+    "china_life_insurance_indonesia": "https://www.chinalife.co.id/id/public-disclosure",
+    "chubb_life_insurance": "https://www.chubb.com/id-id/about-chubb/pt-chubb-life-insurance-indonesia-financial-report.html",
+    "equity_life_indonesia": "https://www.equity.co.id/about/report",
+    "fwd_insurance_indonesia": "https://www.fwd.co.id/id/tentang-kami/",
+    "great_eastern_life_indonesia": "https://www.greateasternlife.com/id/in/tentang-kami/pusat-media/laporan-tahunan.html",
+    "hanwha_life_insurance_indonesia": "https://www.hanwhalife.co.id/laporan-keuangan/",
+    "heksa_solution_insurance": "https://www.heksainsurance.co.id/about/companyreport",
+    "indolife_pensiontama": "https://indolife.co.id/Read/Detail/laporan--perusahaan",
+    "lippo_life_assurance": "https://lippolife.co.id/company/non-audited/monthly-report",
+    "mnc_life_assurance": "https://www.mnclife.com/about/laporanKeuangan",
+    "msig_life_insurance_indonesia_tbk": "https://www.msiglife.co.id/tentang-kami/laporan-keuangan",
+    "pacific_life_insurance": "https://www.pacificlife.co.id/laporan-keuangan",
+    "panin_dai_chi_life": "https://www.panindai-ichilife.co.id/id/laporan-keuangan",
+    "perta_life_insurance": "https://pertalife.com/web/laporan-keuangan-1",
+    "pfi_mega_life_insurance": "https://pfimegalife.co.id/tentang-kami/laporan-keuangan",
+    "prudential_life_assurance": "https://www.prudential.co.id/id/about-prudential-indonesia/financial-statement/",
+    "sun_life_financial_indonesia": "https://www.sunlife.co.id/id/about-us/who-we-are/financial-report/",
+    "tokio_marine_life_insurance_indonesia": "https://www.tokiomarine.com/id/id/life/about-us/financial-information.html",
+    "victoria_alife_indonesia": "https://www.victorialife.co.id/layanan-kami/",
+    "zurich_topas_life": "https://www.zurich.co.id/en/tentang-kami/zurich-topas-life/informasi-investor",
+}
 
 
 def get_all_company_scripts():
@@ -27,6 +80,19 @@ def check_if_pdf_exists(company_id, year, month, output_root):
     output_dir = output_root / period / "raw_pdf" / CATEGORY / company_id
     output_pdf = output_dir / f"{company_id}_{period}.pdf"
     return output_pdf.exists() and output_pdf.stat().st_size > 0
+
+
+def open_website_for_investigation(company_id):
+    """Open company website for manual investigation on download failure."""
+    url = COMPANY_WEBSITES.get(company_id)
+    if url:
+        try:
+            webbrowser.open(url)
+            LOGGER.info(f"Opened {company_id} website for investigation: {url}")
+        except Exception as e:
+            LOGGER.warning(f"Failed to open browser for {company_id}: {e}")
+    else:
+        LOGGER.warning(f"No website URL configured for {company_id}")
 
 
 def run_single_company(script_path, year, month, dry_run=False, timeout=30, use_browser=False, output_root=None):
@@ -131,6 +197,11 @@ def main():
     parser.add_argument("--parallel", type=int, default=1, help="Number of parallel workers (default: 1)")
     parser.add_argument("--timeout", type=int, default=60, help="Timeout per script in seconds")
     parser.add_argument("--use-browser", action="store_true", help="Use browser rendering")
+    parser.add_argument(
+        "--no-fallback-browser",
+        action="store_true",
+        help="Disable automatic browser opening on download failures",
+    )
     parser.add_argument("--output-root", type=Path, default=Path("data"))
     args = parser.parse_args()
 
@@ -159,6 +230,8 @@ def main():
     print(f"Timeout per script: {args.timeout}s")
     if args.use_browser:
         print(f"Browser rendering: ENABLED")
+    if not args.no_fallback_browser:
+        print("Fallback browser: ENABLED (opens on errors)")
     print("="*80 + "\n")
 
     # Run downloads
@@ -180,21 +253,30 @@ def main():
             )
             results.append(result)
 
+            status = result["status"]
             # Status indicator
-            if result["status"] == "success":
+            if status == "success":
                 print(f"✅ {result['reason']}")
-            elif result["status"] == "dry_run":
+            elif status == "dry_run":
                 print(f"✓ {result['reason']}")
-            elif result["status"] == "no_pdf":
+            elif status == "no_pdf":
                 print(f"❌ {result['reason']}")
-            elif result["status"] == "rate_limited":
+                if not args.no_fallback_browser:
+                    open_website_for_investigation(company_id)
+            elif status == "rate_limited":
                 print(f"⚠️  {result['reason']}")
-            elif result["status"] == "timeout":
+                if not args.no_fallback_browser:
+                    open_website_for_investigation(company_id)
+            elif status == "timeout":
                 print(f"⏱️  {result['reason']}")
-            elif result["status"] == "already_exists":
+                if not args.no_fallback_browser:
+                    open_website_for_investigation(company_id)
+            elif status == "already_exists":
                 print(f"📦 {result['reason']}")
             else:
                 print(f"❓ {result['reason']}")
+                if not args.no_fallback_browser:
+                    open_website_for_investigation(company_id)
     else:
         # Parallel execution
         with ThreadPoolExecutor(max_workers=args.parallel) as executor:
@@ -212,6 +294,7 @@ def main():
                 results.append(result)
 
                 company_id = result["company_id"]
+                status = result["status"]
                 status_icon = {
                     "success": "✅",
                     "dry_run": "✓",
@@ -220,9 +303,16 @@ def main():
                     "timeout": "⏱️ ",
                     "already_exists": "📦",
                     "error": "❓"
-                }.get(result["status"], "?")
+                }.get(status, "?")
 
                 print(f"[{completed:2d}/{len(scripts)}] {status_icon} {company_id}: {result['reason']}")
+
+                # Open website for investigation on failure
+                if (
+                    not args.no_fallback_browser
+                    and status in {"error", "no_pdf", "rate_limited", "timeout"}
+                ):
+                    open_website_for_investigation(company_id)
 
     elapsed = time.time() - start_time
 
