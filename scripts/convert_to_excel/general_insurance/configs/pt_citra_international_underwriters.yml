@@ -1,0 +1,39 @@
+company_id: pt_citra_international_underwriters
+pdf_period_sep: "-"
+
+content_start_y: 83.0
+row_cluster_tol: 0.8
+x_thresholds: [79, 163, 185, 200, 240, 307, 326, 345, 398, 470, 488, 556]
+body_cols: [A, B, C, D, E, F, G, H, I, J, K, L]
+value_cols: [C, D, G, H, K, L]
+
+bold_tokens:
+  - INVESTASI
+  - BUKAN INVESTASI
+  - UTANG
+  - EKUITAS
+  - PENDAPATAN
+  - BEBAN
+  - LABA
+  - SOLVABILITAS
+center_tokens:
+  - KETERANGAN
+  - URAIAN
+  - KESEHATAN
+
+label_map: {}
+skip_labels: []
+
+zones:
+  assets:
+    label_col: A
+    val_current: C
+    val_prior: D
+  liabilities:
+    label_col: E
+    val_current: G
+    val_prior: H
+  income:
+    label_col: I
+    val_current: K
+    val_prior: L
