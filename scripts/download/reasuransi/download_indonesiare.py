@@ -281,9 +281,7 @@ def current_timestamp() -> str:
 def month_terms(month: int) -> list[str]:
     terms = list(MONTH_NAMES[month])
     terms.extend([f"{month:02d}", str(month)])
-    result = list(dict.fromkeys(terms))
-    LOGGER.debug("month_terms(%d) -> %s", month, result)
-    return result
+    return list(dict.fromkeys(terms))
 
 
 def target_period_text(year: int, month: int) -> list[str]:
@@ -328,20 +326,44 @@ def matches_target_period(text: str, year: int, month: int) -> bool:
         return False
     month_hit = any(re.search(rf"\b{re.escape(term)}\b", blob) for term in month_terms(month))
     year_hit = re.search(rf"\b{year}\b", blob) is not None
-    numeric_hit = any(term in blob for term in target_period_text(year, month))
-    return (month_hit and year_hit) or numeric_hit
+    numeric_hit = any(re.search(rf"\b{re.escape(term)}\b", blob) for term in target_period_text(year, month))
+
+    previous_month = month - 1 if month > 1 else 12
+    prev_year = year if month > 1 else year - 1
+    prev_month_hit = any(re.search(rf"\bper\s+{re.escape(term)}\b", blob) for term in month_terms(previous_month))
+    prev_year_hit = re.search(rf"\b{prev_year}\b", blob) is not None
+
+    return (month_hit and year_hit) or numeric_hit or (prev_month_hit and prev_year_hit)
 
 
 def positive_score(text: str, year: int, month: int) -> int:
     blob = normalize_text(text)
     score = 0
-    if matches_target_period(blob, year, month):
-        score += 50
-    if is_reportish(blob):
+
+    month_hit = any(re.search(rf"\b{re.escape(term)}\b", blob) for term in month_terms(month))
+    year_hit = re.search(rf"\b{year}\b", blob) is not None
+    numeric_hit = any(re.search(rf"\b{re.escape(term)}\b", blob) for term in target_period_text(year, month))
+    exact_match = (month_hit and year_hit) or numeric_hit
+
+    previous_month = month - 1 if month > 1 else 12
+    prev_year = year if month > 1 else year - 1
+    prev_month_hit = any(re.search(rf"\bper\s+{re.escape(term)}\b", blob) for term in month_terms(previous_month))
+    prev_year_hit = re.search(rf"\b{prev_year}\b", blob) is not None
+    prev_match = prev_month_hit and prev_year_hit
+
+    if exact_match:
+        score += 70
+    elif prev_match:
+        score += 40
+
+    is_report = is_reportish(blob)
+    if is_report:
         score += 25
-    if "laporan keuangan konvensional" in blob or "laporan keuangan perusahaan" in blob:
+    is_conventional = "laporan keuangan konvensional" in blob or "laporan keuangan perusahaan" in blob
+    if is_conventional:
         score += 30
-    if blob.endswith(".pdf"):
+    is_pdf = blob.endswith(".pdf")
+    if is_pdf:
         score += 10
     return score
 
@@ -400,11 +422,15 @@ def extract_links(html: str, base_url: str) -> list[dict[str, str]]:
             clean_text(tag.get("download")),
         ]
         parent = tag.parent
-        if parent is not None:
+        while parent is not None:
             parent_name = getattr(parent, "name", "")
+            if parent_name in {"body", "html"}:
+                break
             parent_text = clean_text(parent.get_text(" ", strip=True))
-            if parent_name not in {"body", "html"} and 0 < len(parent_text) <= 300:
+            if 0 < len(parent_text) <= 300:
                 text_parts.append(parent_text)
+                break
+            parent = parent.parent
         context = clean_text(" ".join(piece for piece in text_parts if piece))
         links.append(
             {
@@ -475,7 +501,7 @@ def build_candidate(
     blob = f"{text} {url}"
     is_syariah = is_syariah_candidate(blob)
     is_unrelated = is_unrelated_candidate(blob)
-    target_match = matches_target_period(blob, year, month)
+    target_match = matches_target_period(text, year, month)
     if is_syariah or is_unrelated or not target_match:
         return None
     score = positive_score(blob, year, month)
@@ -605,10 +631,6 @@ def dedupe_candidates(candidates: list[Candidate]) -> list[Candidate]:
 
 def choose_candidate(candidates: list[Candidate]) -> Candidate | None:
     filtered = dedupe_candidates(candidates)
-    if filtered:
-        LOGGER.info("DEBUG: Top 3 candidates:")
-        for i, cand in enumerate(filtered[:3]):
-            LOGGER.info("  [%d] score=%d url=%s title=%s", i, cand.score, cand.pdf_url, cand.title[:80])
     return filtered[0] if filtered else None
 
 
@@ -741,7 +763,6 @@ def main(argv: list[str] | None = None) -> int:
     deadline = time.monotonic() + MAX_RUNTIME_SECONDS
     session = build_session()
 
-    LOGGER.info("DEBUG: Parsed args - year=%d, month=%d", args.year, args.month)
     LOGGER.info("starting discovery from %s", SOURCE_URL)
     candidates: list[Candidate] = []
     snapshots: list[dict[str, str]] = []
