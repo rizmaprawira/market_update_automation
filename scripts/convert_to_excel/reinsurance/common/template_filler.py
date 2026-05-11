@@ -19,6 +19,7 @@ import shutil
 from pathlib import Path
 
 from openpyxl import load_workbook
+from copy import copy
 
 TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "laporan_keuangan_template_reasuransi.xlsx"
 
@@ -182,7 +183,9 @@ _ROLE_MAP = [
                          "PRESIDEN DIREKTUR", "PRESIDENT DIRECTOR"]),
     ("komisaris",       ["KOMISARIS INDEPENDEN", "KOMISARIS NON-INDEPENDEN", "KOMISARIS NON INDEPENDEN",
                          "KOMISARIS"]),
-    ("direktur",        ["WAKIL DIREKTUR UTAMA", "DIREKTUR", "PLT. DIREKTUR"]),
+    ("direktur_teknik", ["DIREKTUR TEKNIK"]),
+    ("direktur_aktuari",["DIREKTUR AKTUARI"]),
+    ("direktur",        ["WAKIL DIREKTUR UTAMA", "WAKIL DIREKTUR", "DIREKTUR", "PLT. DIREKTUR"]),
 ]
 
 def _classify_role(text: str) -> str | None:
@@ -251,8 +254,26 @@ def _extract_name(text: str) -> str | None:
     return None
 
 
+def _copy_cell_style(source_cell, target_cell) -> None:
+    """Copy formatting (font, fill, border, alignment) from source to target cell."""
+    if source_cell.has_style:
+        target_cell.font = copy(source_cell.font)
+        target_cell.fill = copy(source_cell.fill)
+        target_cell.border = copy(source_cell.border)
+        target_cell.alignment = copy(source_cell.alignment)
+        target_cell.number_format = copy(source_cell.number_format)
+
+
 def fill_bottom_section(ws, rows: list[dict], config: dict) -> None:
-    """Fill template rows 62-75 with komisaris, direksi, pemilik, reasuransi data."""
+    """Fill template bottom section with komisaris, direksi, pemilik, reasuransi data.
+
+    Dynamically extends rows as needed to accommodate variable numbers of entries:
+    - Directors (komisaris, direktur) expanded beyond template rows 64-70
+    - Owners (pemilik) extended beyond template rows 72-75
+    - Reinsurers dalam/luar extended beyond template rows 65-68 / 71-74
+
+    Director subtypes are captured: direktur_teknik, direktur_aktuari, plus general direktur.
+    """
     bs = config.get("bottom_section", {})
     if not bs:
         return
@@ -269,6 +290,8 @@ def fill_bottom_section(ws, rows: list[dict], config: dict) -> None:
     komisaris_utama: str | None = None
     komisaris_list:  list[str]  = []
     direktur_utama:  str | None = None
+    direktur_teknik: list[str]  = []
+    direktur_aktuari:list[str]  = []
     direktur_list:   list[str]  = []
     pemilik_list:    list[tuple[str, str]] = []   # (name, pct)
     re_dalam:        list[tuple[str, str]] = []   # (name, pct)
@@ -352,6 +375,10 @@ def fill_bottom_section(ws, rows: list[dict], config: dict) -> None:
                         komisaris_list.append(name)
                     elif prev_role == "direktur_utama" and not direktur_utama:
                         direktur_utama = name
+                    elif prev_role == "direktur_teknik":
+                        direktur_teknik.append(name)
+                    elif prev_role == "direktur_aktuari":
+                        direktur_aktuari.append(name)
                     elif prev_role == "direktur":
                         direktur_list.append(name)
                 continue
@@ -367,6 +394,10 @@ def fill_bottom_section(ws, rows: list[dict], config: dict) -> None:
                         komisaris_list.append(name)
                     elif role_key == "direktur_utama" and not direktur_utama:
                         direktur_utama = name
+                    elif role_key == "direktur_teknik":
+                        direktur_teknik.append(name)
+                    elif role_key == "direktur_aktuari":
+                        direktur_aktuari.append(name)
                     elif role_key == "direktur":
                         direktur_list.append(name)
 
@@ -454,30 +485,71 @@ def fill_bottom_section(ws, rows: list[dict], config: dict) -> None:
 
     # ── Write to template ─────────────────────────────────────────────────────
 
+    # Calculate end row for each section (accounting for actual data size)
+    # Commissioners: E64 (utama) + len(komisaris) + space for direktur
+    dir_other = len(direktur_teknik) + len(direktur_aktuari) + len(direktur_list)
+    dir_end = 68 + max(2, dir_other)  # direktur_utama at 68, min 2 more rows, more if needed
+
+    # Reinsurers dalam: start at J65, end based on data
+    dalam_end = 65 + len(re_dalam) - 1
+
+    # Reinsurers luar and pemilik start after directors and dalam
+    luar_start = max(71, dir_end + 1)  # keep min spacing but adjust if directors overflow
+    pemilik_start = max(72, dir_end + 1)
+
+    luar_end = luar_start + len(re_luar) - 1
+    pemilik_end = pemilik_start + len(pemilik_list) - 1
+
+    # Helper to write cell and copy style from template row if needed
+    def write_with_style(col: str, row: int, value, source_row: int) -> None:
+        cell = ws[f"{col}{row}"]
+        cell.value = value
+        # Copy style from source if row extends beyond template (row > max template row for this section)
+        if row > source_row:
+            _copy_cell_style(ws[f"{col}{source_row}"], cell)
+
+    # Write commissioners to column E
     if komisaris_utama:
         ws["E64"] = komisaris_utama
-    for i, name in enumerate(komisaris_list[:2]):
-        ws[f"E{65+i}"] = name
+    for i, name in enumerate(komisaris_list):
+        write_with_style("E", 65+i, name, 65)
 
     if direktur_utama:
         ws["E68"] = direktur_utama
-    for i, name in enumerate(direktur_list[:2]):
-        ws[f"E{69+i}"] = name
 
-    for i, (name, pct) in enumerate(pemilik_list[:4]):
-        ws[f"A{72+i}"] = f"{i+1}. {name}"
-        if pct:
-            ws[f"F{72+i}"] = pct
+    # Write all other directors: teknik, aktuari, then general
+    dir_row = 69
+    source_row = 69  # Row to copy style from
+    for name in direktur_teknik:
+        write_with_style("E", dir_row, name, source_row)
+        source_row = dir_row
+        dir_row += 1
+    for name in direktur_aktuari:
+        write_with_style("E", dir_row, name, source_row)
+        source_row = dir_row
+        dir_row += 1
+    for name in direktur_list:
+        write_with_style("E", dir_row, name, source_row)
+        source_row = dir_row
+        dir_row += 1
 
-    for i, (name, pct) in enumerate(re_dalam[:4]):
-        ws[f"J{65+i}"] = f"{i+1}. {name}"
+    # Write reinsurers dalam (column J)
+    for i, (name, pct) in enumerate(re_dalam):
+        write_with_style("J", 65+i, f"{i+1}. {name}", 65)
         if pct:
-            ws[f"O{65+i}"] = pct
+            write_with_style("O", 65+i, pct, 65)
 
-    for i, (name, pct) in enumerate(re_luar[:4]):
-        ws[f"J{71+i}"] = f"{i+1}. {name}"
+    # Write reinsurers luar (column J)
+    for i, (name, pct) in enumerate(re_luar):
+        write_with_style("J", luar_start+i, f"{i+1}. {name}", 71)
         if pct:
-            ws[f"O{71+i}"] = pct
+            write_with_style("O", luar_start+i, pct, 71)
+
+    # Write owners (column A)
+    for i, (name, pct) in enumerate(pemilik_list):
+        write_with_style("A", pemilik_start+i, f"{i+1}. {name}", 72)
+        if pct:
+            write_with_style("F", pemilik_start+i, pct, 72)
 
     if jakarta_date:
         ws["AA62"] = jakarta_date
@@ -550,6 +622,9 @@ def fill_template(
 
     # ── Fill data rows ────────────────────────────────────────────────────────
     tsep = config.get("thousands_sep", ".")
+    skip_labels_list = config.get("skip_labels", [])
+    skip_labels_norm = {_norm(lbl) for lbl in skip_labels_list}
+
     unmatched: list[tuple[str, str]] = []
     for row in rows:
         for sec, zone in zones.items():
@@ -558,6 +633,10 @@ def fill_template(
             lc, vc, vp = zone
             label = row.get(lc, "")
             if not label:
+                continue
+
+            # Skip rows that match skip_labels (e.g., reinsurer company names in financial columns)
+            if _norm(label) in skip_labels_norm:
                 continue
 
             raw_cur = row.get(vc, "")

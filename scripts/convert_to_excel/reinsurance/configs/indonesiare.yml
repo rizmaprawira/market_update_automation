@@ -94,6 +94,21 @@ label_map:
   assets:
     "Pemerintah Negara Republik Indonesia": 18  # → "Surat Berharga...Negara RI"
 
+skip_labels:
+  - "Scor"
+  - "Munich Reinsurance Co."
+  - "The Gibraltar Life Insurance Co.Ltd."
+  - "Swiss Reinsurance Company"
+  - "AON Reinsurance Solution Asia PTE Ltd."
+  - "Munich Re, Singapore"
+  - "Swiss Re, Singapore"
+  - "XL Re, Singapore"
+  - "Korean Re, KL"
+  - "London Market / Lloyd Syndicate"
+  - "National Indemnity Company"
+  - "Lain-Lain"
+  - "Lain-lain"
+
 bottom_section:
   komisaris_col: B
   pemilik_col: B

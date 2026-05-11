@@ -281,7 +281,9 @@ def current_timestamp() -> str:
 def month_terms(month: int) -> list[str]:
     terms = list(MONTH_NAMES[month])
     terms.extend([f"{month:02d}", str(month)])
-    return list(dict.fromkeys(terms))
+    result = list(dict.fromkeys(terms))
+    LOGGER.debug("month_terms(%d) -> %s", month, result)
+    return result
 
 
 def target_period_text(year: int, month: int) -> list[str]:
@@ -603,6 +605,10 @@ def dedupe_candidates(candidates: list[Candidate]) -> list[Candidate]:
 
 def choose_candidate(candidates: list[Candidate]) -> Candidate | None:
     filtered = dedupe_candidates(candidates)
+    if filtered:
+        LOGGER.info("DEBUG: Top 3 candidates:")
+        for i, cand in enumerate(filtered[:3]):
+            LOGGER.info("  [%d] score=%d url=%s title=%s", i, cand.score, cand.pdf_url, cand.title[:80])
     return filtered[0] if filtered else None
 
 
@@ -735,6 +741,7 @@ def main(argv: list[str] | None = None) -> int:
     deadline = time.monotonic() + MAX_RUNTIME_SECONDS
     session = build_session()
 
+    LOGGER.info("DEBUG: Parsed args - year=%d, month=%d", args.year, args.month)
     LOGGER.info("starting discovery from %s", SOURCE_URL)
     candidates: list[Candidate] = []
     snapshots: list[dict[str, str]] = []
