@@ -1,0 +1,183 @@
+company_id: pt_asuransi_jiwa_teguh_pelita_pelindung
+sheet_name: pt_asuransi_jiwa_teguh_pelita_pelindung
+pdf_period_sep: '-'
+thousands_sep: .
+content_start_y: 75.0
+row_cluster_tol: 0.8
+x_thresholds:
+- 140
+- 175
+- 210
+- 340
+- 385
+- 490
+- 560
+- 680
+- 730
+body_cols:
+- B
+- C
+- D
+- F
+- G
+- H
+- J
+- K
+- L
+- N
+- O
+- P
+value_cols:
+- C
+- D
+- G
+- H
+- K
+- L
+- O
+- P
+bold_tokens:
+- JUMLAH
+- TOTAL
+- LABA
+- RUGI
+- INVESTASI
+- BUKAN
+- UTANG
+- CADANGAN
+- KOMISARIS
+- DIREKSI
+- PEMILIK
+- REASURADUR
+- KETERANGAN
+- PENDAPATAN
+- BEBAN
+- LAPORAN
+- POSISI
+center_tokens:
+- KETERANGAN
+- URAIAN
+- PEMENUHAN
+- TINGKAT
+- SOLVABILITAS
+- RASIO
+- MAR
+- ASET
+skip_labels:
+- 31 Mar 2026
+- 31 Mar 2025
+- Mar
+- Uraian
+- LAPORAN POSISI KEUANGAN
+- LIABILITAS & EKUITAS
+- INDIKATOR KESEHATAN KEUANGAN
+- LAPORAN LABA (RUGI) KOMPREHENSIF
+- PEMENUHAN TINGKAT SOLVABILITAS
+- RASIO SELAIN TINGKAT SOLVABILITAS
+- REASURADUR UTAMA
+- KOMISARIS DAN DIREKSI
+- PEMILIK PERUSAHAAN
+- Rapat Umum Anggota
+- Badan Perwakilan Anggota
+page_size: LETTER
+zoom: 70
+margins:
+  left: 0.2
+  right: 0.2
+  top: 0.25
+  bottom: 0.25
+  header: 0.1
+  footer: 0.1
+row_height_scale: 1.15
+col_widths:
+  A: 4.0
+  B: 28.5
+  C: 12.0
+  D: 12.0
+  E: 2.0
+  F: 26.0
+  G: 12.0
+  H: 12.0
+  I: 2.0
+  J: 32.0
+  K: 12.0
+  L: 12.0
+  M: 2.0
+  N: 33.0
+  O: 12.0
+  P: 12.0
+colors:
+  section: 1F3763
+  header: D9E2F3
+  year: EEF3FB
+  subtle: F2F2F2
+period:
+  comparison: prior_year_same_month
+  current_label: '{YEAR4}'
+  prior_label: '{PRIOR_YEAR4}'
+header_rows:
+  1:
+    text: PT AJB BUMIPUTERA 1912
+    size: 13
+    bold: true
+    height: 18
+  2:
+    text: LAPORAN KEUANGAN KONSOLIDIAN
+    size: 12
+    bold: true
+    height: 18
+  3:
+    text: Per {day} {month_full} {YEAR4} dan {PRIOR_YEAR4}
+    size: 9
+    bold: true
+    height: 15
+section_bars:
+  row_heights:
+  - 17
+  - 13
+  - 13
+  items:
+  - range: A7:D9
+    text: 'LAPORAN POSISI KEUANGAN
+
+      PER {day} {MONTH_FULL} {YEAR4} DAN {PRIOR_YEAR4}
+
+      (Dalam Jutaan Rupiah)'
+  - range: J7:L9
+    text: 'LAPORAN LABA RUGI KOMPREHENSIF
+
+      Untuk Periode yang Berakhir {day} {month_full} {YEAR4} dan {PRIOR_YEAR4}
+
+      (Dalam Jutaan Rupiah)'
+  - range: N7:P9
+    text: 'INDIKATOR KESEHATAN KEUANGAN
+
+      PER {day} {MONTH_FULL} {YEAR4} DAN {PRIOR_YEAR4}
+
+      (Dalam Jutaan Rupiah)'
+col_headers:
+  height: 18
+  items:
+  - range: A10:D10
+    text: ASET
+  - range: F10:H10
+    text: LIABILITAS DAN EKUITAS
+  - range: J10:L10
+    text: URAIAN
+  - range: N10:P10
+    text: KETERANGAN
+year_labels:
+  height: 15
+  cells:
+    C11: current
+    D11: prior
+    G11: current
+    H11: prior
+    K11: current
+    L11: prior
+    O11: current
+    P11: prior
+bottom_section:
+  komisaris_col: B
+  pemilik_col: B
+  jakarta_col: N
