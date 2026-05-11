@@ -15,6 +15,14 @@ center_tokens: [KETERANGAN, SOLVABILITAS, PEMENUHAN, PENCAPAIAN, KOMISARIS DAN D
                 DEWAN KOMISARIS, DIREKSI, PEMILIK PERUSAHAAN, ANAK PERUSAHAAN,
                 REASURADUR UTAMA, CATATAN]
 
+skip_labels:
+  - "Hannover Re, Malaysia"
+  - "Odyssey Re, Singapore"
+  - "AXA XL, Singapore"
+  - "Swiss Re, Singapore"
+  - "PT ASRILAND"
+  - "Others"
+
 page_size: LETTER
 zoom: 75
 margins: {left: 0.2, right: 0.2, top: 0.25, bottom: 0.25, header: 0.1, footer: 0.1}

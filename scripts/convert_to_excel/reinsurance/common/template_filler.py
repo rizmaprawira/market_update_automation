@@ -264,6 +264,24 @@ def _copy_cell_style(source_cell, target_cell) -> None:
         target_cell.number_format = copy(source_cell.number_format)
 
 
+def _get_writable_cell(ws, col: str, row: int):
+    """Get the cell to write to, handling merged cells.
+
+    If the cell is part of a merged range (MergedCell), return the top-left cell
+    of that range. Otherwise, return the cell itself.
+    """
+    cell = ws[f"{col}{row}"]
+    # Check if this cell is a MergedCell (part of a merged range)
+    if cell.__class__.__name__ == 'MergedCell':
+        # Find which merged range this cell belongs to
+        for merged_range in ws.merged_cells.ranges:
+            if merged_range.min_col <= cell.column <= merged_range.max_col and \
+               merged_range.min_row <= cell.row <= merged_range.max_row:
+                # Return the top-left cell of this merged range
+                return ws.cell(row=merged_range.min_row, column=merged_range.min_col)
+    return cell
+
+
 def fill_bottom_section(ws, rows: list[dict], config: dict) -> None:
     """Fill template bottom section with komisaris, direksi, pemilik, reasuransi data.
 
@@ -502,20 +520,23 @@ def fill_bottom_section(ws, rows: list[dict], config: dict) -> None:
 
     # Helper to write cell and copy style from template row if needed
     def write_with_style(col: str, row: int, value, source_row: int) -> None:
-        cell = ws[f"{col}{row}"]
+        cell = _get_writable_cell(ws, col, row)
         cell.value = value
         # Copy style from source if row extends beyond template (row > max template row for this section)
         if row > source_row:
-            _copy_cell_style(ws[f"{col}{source_row}"], cell)
+            source_cell = _get_writable_cell(ws, col, source_row)
+            _copy_cell_style(source_cell, cell)
 
     # Write commissioners to column E
     if komisaris_utama:
-        ws["E64"] = komisaris_utama
+        cell = _get_writable_cell(ws, "E", 64)
+        cell.value = komisaris_utama
     for i, name in enumerate(komisaris_list):
         write_with_style("E", 65+i, name, 65)
 
     if direktur_utama:
-        ws["E68"] = direktur_utama
+        cell = _get_writable_cell(ws, "E", 68)
+        cell.value = direktur_utama
 
     # Write all other directors: teknik, aktuari, then general
     dir_row = 69
@@ -552,7 +573,8 @@ def fill_bottom_section(ws, rows: list[dict], config: dict) -> None:
             write_with_style("F", pemilik_start+i, pct, 72)
 
     if jakarta_date:
-        ws["AA62"] = jakarta_date
+        cell = _get_writable_cell(ws, "AA", 62)
+        cell.value = jakarta_date
 
 
 # ── Main fill function ───────────────────────────────────────────────────────
