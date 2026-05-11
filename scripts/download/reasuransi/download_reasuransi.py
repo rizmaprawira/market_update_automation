@@ -7,6 +7,7 @@ import logging
 import subprocess
 import sys
 import time
+import webbrowser
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -14,6 +15,19 @@ from pathlib import Path
 LOGGER = logging.getLogger("download_reasuransi")
 SCRIPT_DIR = Path(__file__).parent
 CATEGORY = "reasuransi"
+
+# Company ID to source website URL mapping for fallback investigation
+COMPANY_WEBSITES = {
+    "indonesiare": "https://www.indonesiare.co.id/id/investor-relations/financial-report",
+    "indore": "https://www.indonesiare.co.id/id/investor-relations/financial-report",
+    "inare": "https://inare.co.id/en/report/",
+    "maipark": "https://maipark.com/id/corporate/laporan",
+    "nasre": "https://nasionalre.id/laporan-tahunan",
+    "marein": "https://marein-re.com/laporan-keuangan",
+    "orionre": "https://www.orionre.id/id/publikasi.html",
+    "tugure": "https://www.tugure.id/id/financial/monthly",
+    "nusantarare": "https://nusantarare.com/report/?lang=in",
+}
 
 
 def get_all_company_scripts() -> list[Path]:
@@ -24,6 +38,19 @@ def get_all_company_scripts() -> list[Path]:
         for script in scripts
         if script.is_file() and script.name != "download_reasuransi.py"
     ]
+
+
+def open_website_for_investigation(company_id: str) -> None:
+    """Open company website for manual investigation on download failure."""
+    url = COMPANY_WEBSITES.get(company_id)
+    if url:
+        try:
+            webbrowser.open(url)
+            LOGGER.info(f"Opened {company_id} website for investigation: {url}")
+        except Exception as e:
+            LOGGER.warning(f"Failed to open browser for {company_id}: {e}")
+    else:
+        LOGGER.warning(f"No website URL configured for {company_id}")
 
 
 def run_single_company(
@@ -170,6 +197,11 @@ def main() -> int:
         help="Wall-clock timeout for each child process in seconds; 0 disables it.",
     )
     parser.add_argument("--use-browser", action="store_true", help="Use browser rendering")
+    parser.add_argument(
+        "--no-fallback-browser",
+        action="store_true",
+        help="Disable automatic browser opening on download failures",
+    )
     parser.add_argument("--output-root", type=Path, default=Path("data"))
     args = parser.parse_args()
 
@@ -210,6 +242,8 @@ def main() -> int:
     print(f"Timeout per script: {args.timeout}s")
     if args.use_browser:
         print("Browser rendering: ENABLED")
+    if not args.no_fallback_browser:
+        print("Fallback browser: ENABLED (opens on errors)")
     print("=" * 80 + "\n")
 
     results: list[dict[str, object]] = []
@@ -243,14 +277,22 @@ def main() -> int:
                 print(f"✓ {reason}")
             elif status == "no_pdf":
                 print(f"❌ {reason}")
+                if not args.no_fallback_browser:
+                    open_website_for_investigation(company_id)
             elif status == "rate_limited":
                 print(f"⚠️  {reason}")
+                if not args.no_fallback_browser:
+                    open_website_for_investigation(company_id)
             elif status == "timeout":
                 print(f"⏱️  {reason}")
+                if not args.no_fallback_browser:
+                    open_website_for_investigation(company_id)
             elif status == "already_exists":
                 print(f"📦 {reason}")
             else:
                 print(f"❓ {reason}")
+                if not args.no_fallback_browser:
+                    open_website_for_investigation(company_id)
     else:
         with ThreadPoolExecutor(max_workers=args.parallel) as executor:
             futures = {
@@ -277,6 +319,7 @@ def main() -> int:
                 result = future.result()
                 results.append(result)
 
+                status = result["status"]
                 status_icon = {
                     "success": "✅",
                     "dry_run": "✓",
@@ -286,12 +329,19 @@ def main() -> int:
                     "timeout": "⏱️ ",
                     "already_exists": "📦",
                     "error": "❓",
-                }.get(str(result["status"]), "?")
+                }.get(str(status), "?")
 
                 print(
                     f"[{completed:2d}/{len(scripts)}] {status_icon} "
                     f"{result['company_id']}: {result['reason']}"
                 )
+
+                # Open website for investigation on failure
+                if (
+                    not args.no_fallback_browser
+                    and status in {"error", "no_pdf", "rate_limited", "timeout"}
+                ):
+                    open_website_for_investigation(result["company_id"])
 
     elapsed = time.time() - start_time
 
