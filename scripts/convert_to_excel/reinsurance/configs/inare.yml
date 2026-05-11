@@ -15,6 +15,23 @@ center_tokens: [KETERANGAN, SOLVABILITAS, RASIO, INDIKATOR, KOMISARIS DAN DIREKS
                 DEWAN KOMISARIS, DIREKSI, PEMILIK PERUSAHAAN, ANAK PERUSAHAAN,
                 REASURADUR UTAMA, CATATAN, INFORMASI]
 
+skip_labels:
+  - "Munich Reinsurance Company"
+  - "Swiss Re Asia Pte Ltd"
+  - "Labuan Reinsurance (L) Ltd"
+  - "Transatlantic Reinsurance Company"
+  - "Echo Rückversicherungs-AG"
+  - "International General Insurance Co. Ltd."
+  - "Malaysian Reinsurance Berhad"
+  - "XL Re Europe SE"
+  - "Canopius Asia Pte Ltd - 100% 4444"
+  - "MS First Capital Insurance Limited"
+  - "Peak Reinsurance Company Limited"
+  - "Singapore Reinsurance Corporation Ltd"
+  - "Mekong Re Ltd on behalf of PVI Insurance"
+  - "FuSure Reinsurance Company Limited"
+  - "Qianhai Reinsurance Co. Ltd"
+
 page_size: A3
 zoom: 55
 margins: {left: 0.2, right: 0.2, top: 0.25, bottom: 0.25, header: 0.1, footer: 0.1}
