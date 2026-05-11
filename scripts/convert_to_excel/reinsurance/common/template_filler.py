@@ -511,12 +511,12 @@ def fill_bottom_section(ws, rows: list[dict], config: dict) -> None:
     # Reinsurers dalam: start at J65, end based on data
     dalam_end = 65 + len(re_dalam) - 1
 
-    # Reinsurers luar and pemilik start after directors and dalam
-    luar_start = max(71, dir_end + 1)  # keep min spacing but adjust if directors overflow
-    pemilik_start = max(72, dir_end + 1)
+    # Reinsurers luar: always start at row 71 (template allocated) to overwrite placeholders
+    luar_template_start = 71
+    luar_end = luar_template_start + len(re_luar) - 1
 
-    luar_end = luar_start + len(re_luar) - 1
-    pemilik_end = pemilik_start + len(pemilik_list) - 1
+    # Owners start after reinsurers luar (never overlap)
+    pemilik_start = luar_end + 1
 
     # Helper to write cell and copy style from template row if needed
     def write_with_style(col: str, row: int, value, source_row: int) -> None:
@@ -555,16 +555,20 @@ def fill_bottom_section(ws, rows: list[dict], config: dict) -> None:
         dir_row += 1
 
     # Write reinsurers dalam (column J)
+    # Template allocates rows 65-68 (4 slots), extend beyond if needed
     for i, (name, pct) in enumerate(re_dalam):
         write_with_style("J", 65+i, f"{i+1}. {name}", 65)
         if pct:
             write_with_style("O", 65+i, pct, 65)
 
     # Write reinsurers luar (column J)
+    # Template allocates rows 71-74 (4 slots), but always start from 71 to overwrite placeholders
+    # If more than 4, extend beyond row 74
+    luar_template_start = 71
     for i, (name, pct) in enumerate(re_luar):
-        write_with_style("J", luar_start+i, f"{i+1}. {name}", 71)
+        write_with_style("J", luar_template_start+i, f"{i+1}. {name}", 71)
         if pct:
-            write_with_style("O", luar_start+i, pct, 71)
+            write_with_style("O", luar_template_start+i, pct, 71)
 
     # Write owners (column A)
     for i, (name, pct) in enumerate(pemilik_list):
