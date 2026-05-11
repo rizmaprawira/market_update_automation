@@ -477,7 +477,7 @@ def fill_bottom_section(ws, rows: list[dict], config: dict) -> None:
             if m:
                 name, pct_str = m.group(1).strip(), m.group(2).strip()
 
-            if name and len(name) > 1 and name not in ("-", "Lain-Lain", "OTHERS"):
+            if name and len(name) > 1 and name not in ("-", "OTHERS"):
                 if re_state == "dalam":
                     re_dalam.append((name, pct_str))
                 else:
